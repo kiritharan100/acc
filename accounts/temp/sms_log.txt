@@ -1,0 +1,4 @@
+[2025-06-18 09:06:38] SMS sent to +94770888501: {"message":"SMS sent successfully","data":{"status":"success","campaign_id":4129,"message":"Your fuel order is ready!","sender_id":"SMSlenzDEMO","pages":1,"recipient_number":"94770888501","sms_credit_balance":8.230000000000000426325641456060111522674560546875}}
+[2025-06-18 09:52:32] SMS sent to +94770888501: {"message":"An error occurred","error":"Attempt to read property \"sms_type\" on null"}
+[2025-06-18 09:54:27] SMS sent to +94770888501: {"message":"An error occurred","error":"Attempt to read property \"sms_type\" on null"}
+[2025-06-18 09:54:53] SMS sent to +94770888501: {"message":"An error occurred","error":"Attempt to read property \"sms_type\" on null"}

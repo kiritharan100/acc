@@ -1,0 +1,12 @@
+<?php
+$to = '+94770888501';
+$message = 'Your fuel order is ready!';
+
+$result = sendSMS($to, $message);
+
+if ($result['success']) {
+    echo "SMS Sent Successfully: ";
+} else {
+    echo "SMS Error: " . $result['error'];
+}
+ ?>

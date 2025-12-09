@@ -1,0 +1,493 @@
+/* Fix for dropdown menus in tables being clipped by parent containers */
+.card {
+    overflow: visible !important;
+}
+.dataTables_wrapper {
+    overflow: visible !important;
+}
+.table-responsive {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: auto !important;
+}
+.dropdown-menu {
+    z-index: 999999 !important;
+}
+.table-responsive .dropdown-menu {
+    z-index: 999999 !important;
+}
+/* Ensure dropdown menus in tables are not clipped by parent containers */
+.card {
+    overflow: visible !important;
+}
+
+/* Optional safety for DataTables */
+.dataTables_wrapper {
+    overflow: visible !important;
+}
+/* 
+ * ACC System Custom Styles
+ * File: style_acc.css
+ * Purpose: Global styles for the accounting system
+ * Created: October 30, 2025
+ * Author: Development Team
+ * 
+ * This file contains all custom styles for the accounting system.
+ * Include this file in header.php for system-wide styling support.
+ * 
+ * Usage:
+ * Add the following line in header.php:
+ * <link rel="stylesheet" type="text/css" href="../assets/css/style_acc.css">
+ */
+
+/* ==========================================================================
+   Table Styles
+   ========================================================================== */
+
+.table-responsive {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: #DED7D5;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 8px 6px;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 6px 6px;
+    border-color: #e9ecef;
+    font-size: 13px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+/* ==========================================================================
+   Badge Styles
+   ========================================================================== */
+
+.badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.badge i {
+    margin-right: 2px;
+    font-size: 9px;
+}
+
+/* ==========================================================================
+   Button Styles
+   ========================================================================== */
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.btn {
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* ==========================================================================
+   Dropdown Styles
+   ========================================================================== */
+
+.dropdown-toggle {
+    padding: 3px 6px !important;
+    font-size: 11px;
+}
+
+.dropdown-toggle::after {
+    margin-left: 8px;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    z-index: 9999 !important;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.dropdown-item i {
+    width: 20px;
+    margin-right: 8px;
+}
+
+/* ==========================================================================
+   Modal Styles
+   ========================================================================== */
+
+.modal-header {
+    background-color: #DEDCDC;
+    color: #333;
+    border-radius: 8px 8px 0 0;
+    border: none;
+    border-bottom: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    min-height: 40px;
+    position: relative;
+}
+
+.modal-header .modal-title {
+    font-weight: 600;
+    margin: 0;
+    font-size: 14px;
+    text-align: center;
+    flex: 1;
+}
+
+.modal-header .close {
+    padding: 0;
+    font-size: 18px;
+    color: #333;
+    opacity: 0.7;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.modal-header .close:hover {
+    opacity: 1;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   Form Styles
+   ========================================================================== */
+
+.form-group label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    padding: 10px 12px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.col-form-label {
+    font-weight: 600;
+    color: #495057;
+    padding-top: calc(0.375rem + 1px);
+    padding-bottom: calc(0.375rem + 1px);
+    margin-bottom: 0;
+}
+
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.row {
+    margin-bottom: 15px;
+}
+
+/* ==========================================================================
+   Card Styles
+   ========================================================================== */
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px 12px 0 0;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* ==========================================================================
+   VAT Details Styles
+   ========================================================================== */
+
+#add-vat-details, #edit-vat-details {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border: 2px dashed #dee2e6;
+}
+
+/* ==========================================================================
+   DataTable Specific Styles
+   ========================================================================== */
+
+#example {
+    font-size: 13px;
+}
+
+#example tbody tr {
+    height: 35px;
+}
+
+#example .dropdown-menu {
+    min-width: 140px;
+    font-size: 12px;
+}
+
+#example .dropdown-item {
+    padding: 6px 10px;
+}
+
+/* ==========================================================================
+   Header Styles
+   ========================================================================== */
+
+.main-header h4 {
+    color: #495057;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   DatePicker Styles
+   ========================================================================== */
+
+.datepicker {
+    border-radius: 6px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: none;
+    z-index: 9999 !important;
+}
+
+.datepicker table tr td.active:active,
+.datepicker table tr td.active.highlighted:active,
+.datepicker table tr td.active.active,
+.datepicker table tr td.active.highlighted.active {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.datepicker table tr td.active:hover,
+.datepicker table tr td.active.highlighted:hover,
+.datepicker table tr td.active:focus,
+.datepicker table tr td.active.highlighted:focus {
+    background-color: #5a6fd8;
+    border-color: #5a6fd8;
+}
+
+.datepicker table tr td.today {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.datepicker table tr td.today:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    width: 100%;
+}
+
+.input-group .form-control {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+    margin-bottom: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.input-group-append {
+    margin-left: -1px;
+}
+
+.input-group-text {
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #e9ecef;
+    border: 2px solid #e9ecef;
+    border-radius: 0.25rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.input-group-text:hover {
+    background-color: #dee2e6;
+    border-color: #dee2e6;
+}
+
+.input-group .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.input-group .form-control:focus + .input-group-append .input-group-text {
+    border-color: #667eea;
+}
+
+/* Prevent text selection in readonly datepicker inputs */
+.datepicker {
+    background-color: white;
+    cursor: pointer;
+}
+
+.datepicker.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.datepicker:focus {
+    outline: none;
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 95% !important;
+        width: 95% !important;
+    }
+    
+    .table-responsive {
+        font-size: 12px;
+    }
+    
+    .btn-sm {
+        padding: 2px 4px;
+        font-size: 10px;
+    }
+}
+
+/* ==========================================================================
+   Animation Classes
+   ========================================================================== */
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { 
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+    .btn, .dropdown, .modal-header .close {
+        display: none !important;
+    }
+    
+    .table {
+        border-collapse: collapse !important;
+    }
+    
+    .table th, .table td {
+        border: 1px solid #000 !important;
+    }
+}

@@ -1,0 +1,3 @@
+01> product_master   : id=0   Oil    ststus=1
+02> manage_pump_operator   need 0 id op_name = Oil Sales
+03> shed_operator_shift   need 0 id  location 0 operator 0 open status 1
