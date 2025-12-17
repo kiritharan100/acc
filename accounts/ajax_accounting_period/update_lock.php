@@ -12,7 +12,7 @@ if ($id <= 0) {
 }
 
 $sql = "UPDATE accounts_accounting_period 
-        SET log_old_period = '$state' 
+        SET lock_period = '$state' 
         WHERE id = '$id' AND location_id = '$location_id'";
 
 if (mysqli_query($con, $sql)) {

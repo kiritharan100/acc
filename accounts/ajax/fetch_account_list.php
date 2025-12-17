@@ -48,6 +48,7 @@ $query = "(
         m.ca_name,
         m.vat_id,
         cat.main_category AS ca_group,
+        cat.coa_nature,
         cat.contact_required,
         1 AS editable,
         'master' AS account_type,
@@ -71,6 +72,7 @@ UNION ALL
         c.ca_name,
         c.vat_id,
         cat.main_category AS ca_group,
+        cat.coa_nature,
         cat.contact_required,
         1 AS editable,
         CASE WHEN c.master_id > 0 THEN 'master' ELSE 'client' END AS account_type,
@@ -93,9 +95,10 @@ while ($row = mysqli_fetch_assoc($result)) {
     $account_name = htmlspecialchars($row['ca_name']);
     $account_group = htmlspecialchars($row['ca_group']);
     $contact_required = $row['contact_required'];
+    $coa_nature = htmlspecialchars($row['coa_nature']);
 
     $label = "$account_group > $account_name";
-    $options .= "<option value='$account_id' data-contact-required='$contact_required' data-vat-id='{$row['vat_id']}'>$label</option>";
+    $options .= "<option value='$account_id' data-contact-required='$contact_required' data-vat-id='{$row['vat_id']}' data-coa-nature='$coa_nature'>$label</option>";
 }
 
 echo $options;

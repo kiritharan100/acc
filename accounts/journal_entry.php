@@ -27,11 +27,39 @@ $end_date   = _normalizeDateToSqlLocal($end_date_input)   ?: date('Y-m-d');
 $start_datetime = $start_date . ' 00:00:00';
 $end_datetime   = $end_date . ' 23:59:59';
 
+$transaction_date_cookie = '';
+if (!empty($_COOKIE['transaction_date'])) {
+    $dt = DateTime::createFromFormat('Y-m-d', $_COOKIE['transaction_date']);
+    if ($dt) {
+        $transaction_date_cookie = $dt->format('d-m-Y');
+    }
+}
+
 $journals = mysqli_query($con, "
-  SELECT * FROM accounts_journal 
+  SELECT j.*,
+    EXISTS(
+      SELECT 1 FROM accounts_transaction t 
+      WHERE t.source = 'J' AND t.source_id = j.id AND t.vat_filed_status = 1
+      LIMIT 1
+    ) AS has_filed_vat
+  FROM accounts_journal j
   WHERE journal_date BETWEEN '$start_datetime' AND '$end_datetime'  AND location_id = '$location_id' $status_filter
   ORDER BY id DESC LIMIT 100
 ");
+
+// VAT prompt suppression list (Do Not Ask Again)
+$vat_do_not_ask = [];
+$vat_request_table_exists = false;
+$vatCheck = mysqli_query($con, "SHOW TABLES LIKE 'accounts_vat_change_request'");
+if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
+    $vat_request_table_exists = true;
+    $vatSupp = mysqli_query($con, "SELECT ca_id FROM accounts_vat_change_request WHERE location_id = '$location_id'");
+    if ($vatSupp) {
+        while ($row = mysqli_fetch_assoc($vatSupp)) {
+            $vat_do_not_ask[] = (int)$row['ca_id'];
+        }
+    }
+}
 
 ?>
 
@@ -72,21 +100,23 @@ $journals = mysqli_query($con, "
                         <button type='button' id="exportButton"
                             filename='<?php echo "Journal_list_".$start_date."_".$end_date; ?>.xlsx'
                             class="btn btn-primary"><i class="ti-cloud-down"></i> Export</button>
+                        <button type="button" class="btn btn-danger" onclick="bulkDeleteJournals()">Delete Journal(s)</button>
 
                     </form>
                     <hr>
                     <table id="example" class="table table-bordered table-sm">
                         <thead class="thead-dark">
                             <tr>
+                                <th width='30px'><input type="checkbox" id="selectAllJournals"></th>
                                 <th width='20px'>#</th>
-                                <th width='80px' >Journal Date</th>
+                                <th width='80px'>Journal Date</th>
                                 <th width='80px'>Ref No</th>
-                                
+
                                 <th>Memo</th>
-                                
-                                <th width='100px' >Amount</th>
+
+                                <th width='100px'>Amount</th>
                                 <th width='60px'>Status</th>
-                                <th width='80px' >Action</th>
+                                <th width='80px'>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -94,7 +124,9 @@ $journals = mysqli_query($con, "
               $count = 1;
               while ($j = mysqli_fetch_assoc($journals)) {
                 $style = $j['status'] == 0 ? "class='table-danger cancelled-row'" : "";
+                $disableCheckbox = ($j['has_filed_vat'] == 1) ? 'disabled title="VAT filed - cannot delete"' : '';
                 echo "<tr $style>
+                  <td><input type='checkbox' class='journal-select' value='{$j['id']}' $disableCheckbox></td>
                   <td>{$count}</td> 
                   <td>{$j['journal_date']}</td>
                   <td align='center'><a class='dropdown-item' href='#' onclick='viewJournal({$j['id']})'>
@@ -115,9 +147,12 @@ $journals = mysqli_query($con, "
                         <a class='dropdown-item' href='#' onclick='editJournal({$j['id']})'>
                           <i class='fa fa-edit text-primary'></i> Edit Journal
                         </a>";
+                  echo "<a class='dropdown-item' href='#' onclick='copyJournal({$j['id']})'>
+                          <i class='fa fa-copy text-warning'></i> Copy Journal
+                        </a>";
                   if ($j['status'] == 1) {    
                         echo "<a class='dropdown-item' href='#' onclick='deleteJournal({$j['id']})'>
-                          <i class='fa fa-trash text-danger'></i> Cancel Journal
+                          <i class='fa fa-trash text-danger'></i> Delete Journal
                         </a>";
                     }
                     if($j['status'] == 0) {
@@ -149,6 +184,9 @@ $journals = mysqli_query($con, "
                     <h5 class="modal-title">Journal Entry</h5>
                 </div>
                 <div class="modal-body">
+                    <div id="copyWarning" class="alert alert-warning d-none" role="alert">
+                        This is a copy of the selected journal. Saving will create a new transaction.
+                    </div>
                     <div class="row mb-2">
                         <div class="col-md-3">
                             <label>Date</label>
@@ -212,6 +250,21 @@ $journals = mysqli_query($con, "
 <script>
 let accountOptions = "";
 let contactOptions = "";
+
+// DataTable ordering: Journal Date desc
+$(function() {
+    $('#example').DataTable({
+        order: [[2, 'desc']],
+        columnDefs: [
+            { orderable: false, targets: [0, 7] }
+        ]
+    });
+
+    $('#selectAllJournals').on('change', function() {
+        const checked = $(this).is(':checked');
+        $('.journal-select:not(:disabled)').prop('checked', checked);
+    });
+});
 // function openJournalModal() {
 //   $('#journalForm')[0].reset();
 //   $('#journalForm input[name=id]').remove();
@@ -224,9 +277,38 @@ function openJournalModal() {
     $('#journalForm')[0].reset();
     $('#journalForm input[name=id]').remove();
     $('#journal_lines tbody').html('');
+    $('#copyWarning').addClass('d-none');
     loadAccountsOnce(); // <-- call the new function here
 
     $('#journalModal').modal('show');
+}
+
+function bulkDeleteJournals() {
+    const ids = $('.journal-select:checked').map(function() { return $(this).val(); }).get();
+    if (ids.length === 0) {
+        notify('info', 'No journals selected', 'Please select at least one journal to delete.');
+        return;
+    }
+
+    Swal.fire({
+        title: 'Delete selected journals?',
+        html: 'This will cancel the selected journals.<br><small>Note: Filed journals cannot be deleted.</small>',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        const requests = ids.map(id => $.post('journal/delete_journal.php', { id }));
+        $.when.apply($, requests).done(function() {
+            notify('success', 'Deleted', 'Selected journals deleted.');
+            setTimeout(() => location.reload(), 800);
+        }).fail(function() {
+            notify('danger', 'Error', 'Failed to delete one or more journals.');
+        });
+    });
 }
 
 
@@ -441,9 +523,23 @@ function updateVatValue(input) {
     $row.find('.vat-value').val(vatValue);
 }
 
+// Set VAT on a row without triggering the change prompt
+function setVatSilently($row, caId, vatId) {
+    if (!vatId) return;
+    window.vatChangeSuppress = window.vatChangeSuppress || {};
+    window.vatChangeSuppress[caId] = true;
+    $row.find('.vat-select').val(String(vatId));
+    try {
+        $row.find('.vat-select').trigger('change.select2');
+    } catch (e) {
+        $row.find('.vat-select').trigger('change');
+    }
+}
+
 // Store session-level skip choices and transient suppress flags
 window.vatPromptSkip = window.vatPromptSkip || {};
 window.vatChangeSuppress = window.vatChangeSuppress || {};
+window.vatDoNotAskList = window.vatDoNotAskList || {};
 
 // Save the user's choice to the server
 function saveVatUpdate(ca_id, newVatId, dontAsk, answer) {
@@ -451,7 +547,8 @@ function saveVatUpdate(ca_id, newVatId, dontAsk, answer) {
         ca_id: ca_id,
         new_vat_id: newVatId,
         user_answer: answer,
-        dont_ask: dontAsk
+        dont_ask: dontAsk,
+        location_id: window.currentLocationId
     }, function(resp) {
         console.log('VAT update response:', resp);
     }).fail(function() {
@@ -467,13 +564,33 @@ function handleVatChange($vatSelect) {
     const ca_id = $ca.val();
     if (!ca_id) return; // no account selected
 
-    const defaultVat = $ca.find('option:selected').data('vat-id');
+    const selectedOption = $ca.find('option:selected');
+    const nature = (selectedOption.data('coa-nature') || '').toString().toLowerCase();
+    const shouldPrompt = (nature === 'income' || nature === 'expenses');
+    const defaultVat = selectedOption.data('vat-id');
     const newVat = $vatSelect.val();
+
+    if (!shouldPrompt) {
+        return; // only prompt for Income or Expenses accounts
+    }
+
     if (String(defaultVat) === String(newVat)) return; // nothing changed
 
     // respect programmatic suppress flag
     if (window.vatChangeSuppress[ca_id]) {
         delete window.vatChangeSuppress[ca_id];
+        return;
+    }
+
+    // Persisted "Do not ask again" for this account/location
+    if (window.vatDoNotAskList[ca_id]) {
+        window.vatChangeSuppress[ca_id] = true;
+        $vatSelect.val(defaultVat);
+        try {
+            $vatSelect.trigger('change.select2');
+        } catch (e) {
+            $vatSelect.trigger('change');
+        }
         return;
     }
 
@@ -493,13 +610,16 @@ function handleVatChange($vatSelect) {
         reverseButtons: true,
         width: 520
     }).then((result) => {
-        const dontAsk = (document.getElementById('swalDontAsk') && document.getElementById('swalDontAsk').checked) ? 1 : 0;
+        const dontAsk = (document.getElementById('swalDontAsk') && document.getElementById('swalDontAsk')
+            .checked) ? 1 : 0;
         if (result.isConfirmed) {
             if (dontAsk) window.vatPromptSkip[ca_id] = true;
+            window.vatDoNotAskList[ca_id] = true;
             saveVatUpdate(ca_id, newVat, dontAsk, 'yes');
         } else {
             // user declined: still notify server and revert to default
             saveVatUpdate(ca_id, newVat, dontAsk, 'no');
+            if (dontAsk) window.vatDoNotAskList[ca_id] = true;
             window.vatChangeSuppress[ca_id] = true;
             $vatSelect.val(defaultVat);
             try {
@@ -632,7 +752,7 @@ $('#journalForm').on('submit', function(e) {
 
         const required = $tr.find('select[name="category[]"] option:selected').data('contact-required');
         const vatId = $tr.find('select[name="category[]"] option:selected').data('vat-id');
-       
+
 
         if (required && String(required).trim() !== '') {
             const need = String(required).toLowerCase();
@@ -669,12 +789,12 @@ $('#journalForm').on('submit', function(e) {
     let totalDr = parseFloat($('#total_debit').val()) || 0;
     let totalCr = parseFloat($('#total_credit').val()) || 0;
     if (totalDr === 0 && totalCr === 0) {
-    notify('danger', 'Missing Amount', 'Please fill the amount before save.');
-    return;
+        notify('danger', 'Missing Amount', 'Please fill the amount before save.');
+        return;
     }
     if (totalDr !== totalCr) {
-    notify('danger', 'Mismatch', 'Debit and Credit must balance.');
-    return;
+        notify('danger', 'Mismatch', 'Debit and Credit must balance.');
+        return;
     }
 
 
@@ -742,6 +862,7 @@ function editJournal(id) {
         $('#journalForm')[0].reset();
         $('#journalForm input[name=id]').remove();
         $('#journal_lines tbody').html('');
+        $('#copyWarning').addClass('d-none');
         $('input[name="journal_date"]').val(j.journal_date);
         $('input[name="memo"]').val(j.memo);
         $('#journalModal').modal('show');
@@ -763,7 +884,7 @@ function editJournal(id) {
                 // VAT select and value
                 if (window.isVatRegistered) {
                     if (line.vat_id) {
-                        $row.find('.vat-select').val(String(line.vat_id)).trigger('change');
+                        setVatSilently($row, line.ca_id, line.vat_id);
                     }
                     updateVatValue($row.find('input[name="debit[]"]').get(0));
                 }
@@ -827,11 +948,80 @@ function editJournal(id) {
 
 
 
+function copyJournal(id) {
+    $.get('journal/get_journal_details.php', {
+        id
+    }, function(res) {
+        const data = (typeof res === 'string') ? JSON.parse(res) : res;
+        if (!data.journal) {
+            notify('danger', 'Error', 'Journal not found.');
+            return;
+        }
+
+        const j = data.journal;
+        const lines = data.details || [];
+
+        // Reset form and open modal for copy
+        $('#journalForm')[0].reset();
+        $('#journalForm input[name=id]').remove();
+        $('#journal_lines tbody').html('');
+        $('#copyWarning').removeClass('d-none');
+
+        // Use cookie date if available, else original journal date
+        const copyDate = window.transactionDateFromCookie && window.transactionDateFromCookie.length > 0 ?
+            window.transactionDateFromCookie :
+            (j.journal_date || '');
+        $('input[name="journal_date"]').val(copyDate);
+        $('input[name="memo"]').val(j.memo);
+        $('#journalModal').modal('show');
+
+        // Ensure options are loaded before populating lines
+        ensureOptionsLoaded(function() {
+            let totalDr = 0,
+                totalCr = 0;
+            lines.forEach((line) => {
+                addJournalLine(line.ca_id);
+                const $row = $('#journal_lines tbody tr').last();
+                // Select account and set fields
+                $row.find('select[name="category[]"]').val(String(line.ca_id)).trigger(
+                    'change');
+                $row.find('input[name="description[]"]').val(line.description || '');
+                $row.find('input[name="debit[]"]').val(line.debit);
+                $row.find('input[name="credit[]"]').val(line.credit);
+                totalDr += parseFloat(line.debit) || 0;
+                totalCr += parseFloat(line.credit) || 0;
+                // VAT select and value
+                if (window.isVatRegistered) {
+                    if (line.vat_id) {
+                        setVatSilently($row, line.ca_id, line.vat_id);
+                    }
+                    updateVatValue($row.find('input[name="debit[]"]').get(0));
+                }
+                // Set contact if present
+                if (line.contact_id) {
+                    filterContactOptionsForRow($row);
+                    $row.find('select[name="contact_id[]"]').val(String(line.contact_id))
+                        .trigger('change');
+                }
+            });
+            $('#total_debit').val(totalDr.toFixed(2));
+            $('#total_credit').val(totalCr.toFixed(2));
+
+            // Ensure form is editable and no delete/cancel overlays
+            $('#journalForm input, #journalForm select, #journalForm textarea').prop('disabled', false);
+            $('#journalForm .modal-footer').show();
+            $('#cancelledAlert').remove();
+            $('#deleteJournalBtn').remove();
+        });
+    });
+}
+
+
 // Filter contact select options in a row according to account's data-contact-required
 function filterContactOptionsForRow($row) {
     const required = $row.find('select[name="category[]"] option:selected').data('contact-required');
     const vatId = $row.find('select[name="category[]"] option:selected').data('vat-id');
-     
+
     const $contact = $row.find('select[name="contact_id[]"]');
 
 
@@ -892,7 +1082,10 @@ $(document).ready(function() {
     // openJournalModal();
 
 });
+window.vatDoNotAskList = <?= json_encode((object)array_fill_keys($vat_do_not_ask, true)) ?>;
+window.currentLocationId = <?= (int)$location_id ?>;
 window.isVatRegistered = <?= ($is_vat_registered == 1 ? 'true' : 'false') ?>;
+window.transactionDateFromCookie = "<?= $transaction_date_cookie ?>";
 </script>
 
 <!-- View Journal Modal -->

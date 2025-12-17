@@ -1,6 +1,7 @@
 <?php
 include("../../db.php");
 include("../../auth.php");
+include("../functions.php");
 
 function exec_or_fail($con, $sql, $context = '') {
   $ok = mysqli_query($con, $sql);
@@ -73,6 +74,12 @@ function saveJournal($data, $con, $user_id) {
   }
   if (number_format($totalDr, 2) !== number_format($totalCr, 2)) {
     return "Debit and Credit mismatch.";
+  }
+
+  // Validate accounting period is open (lock_period = 0)
+  list($periodOk, $periodMsg) = ensure_open_period($con, $location_id, $date);
+  if (!$periodOk) {
+    return $periodMsg;
   }
 
   list($okMax,) = exec_or_fail($con, "SELECT MAX(loc_no) as max_no FROM accounts_journal WHERE location_id = '$location_id'", 'get max loc_no');
