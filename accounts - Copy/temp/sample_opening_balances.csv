@@ -1,5 +1,0 @@
-﻿invoice_no,customer_id,invoice_date,vehicle_no,order_no,total_sales
-OB-001,4,2024-04-01,ABC123,ORD-11,10000
-OB-002,4,2024-04-02,XYZ456,ORD-12,11000
-OB-003,4,2024-04-03,GHI789,ORD-13,12000
-,This is Sample File,,,,

@@ -44,40 +44,41 @@
 }
 
 
-?><!DOCTYPE html>
-<html lang="en">
+?>
+ <!DOCTYPE html>
+ <html lang="en">
 
-<head>
-	<title>App Login</title>
-	<!-- Meta -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="description" content="codedthemes">
-	<meta name="keywords" content=",  creative app">
-	<meta name="author" content="codedthemes">
+ <head>
+     <title>App Login</title>
+     <!-- Meta -->
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+     <meta name="description" content="codedthemes">
+     <meta name="keywords" content=",  creative app">
+     <meta name="author" content="codedthemes">
 
-	<!-- Favicon icon -->
-	<link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
-	<link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
-	<link href="https://fonts.googleapis.com/css?family=Ubuntu:400,500,700" rel="stylesheet">
-	<link href="assets/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" type="text/css" href="assets/icon/icofont/css/icofont.css">
-	<link rel="stylesheet" type="text/css" href="assets/plugins/bootstrap/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/plugins/Waves/waves.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/main.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/color/color-1.min.css" id="color" />
-	 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+     <!-- Favicon icon -->
+     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
+     <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+     <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,500,700" rel="stylesheet">
+     <link href="assets/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+     <link rel="stylesheet" type="text/css" href="assets/icon/icofont/css/icofont.css">
+     <link rel="stylesheet" type="text/css" href="assets/plugins/bootstrap/css/bootstrap.min.css">
+     <link rel="stylesheet" type="text/css" href="assets/plugins/Waves/waves.min.css">
+     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+     <link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
+     <link rel="stylesheet" type="text/css" href="assets/css/color/color-1.min.css" id="color" />
+     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ </head>
 
-<body>
-	<section class="login p-fixed d-flex text-center bg-primary common-img-bg">
-		<!-- Container-fluid starts -->
-		<div class="container-fluid">
-			<div class="row">
+ <body>
+     <section class="login p-fixed d-flex text-center bg-primary common-img-bg">
+         <!-- Container-fluid starts -->
+         <div class="container-fluid">
+             <div class="row">
 
-<?php if(isset($_REQUEST['multiple_sign_in'])){
+                 <?php if(isset($_REQUEST['multiple_sign_in'])){
     
     echo '<script>
     Swal.fire({
@@ -89,18 +90,18 @@
 }?>
 
 
-				<div class="col-sm-12">
-					<div class="login-card card-block"  >
-					
-						<form class="md-float-material" action="" method="POST" autocomplete="on">
-							<div class="text-center">
-								<img src="img/logo_123.png" alt="logo" width='150px'>
-							</div>
-							<h3 class="text-center txt-success">
-								 
-								<!--Sign In to your account-->
+                 <div class="col-sm-12">
+                     <div class="login-card card-block">
 
-								<?php
+                         <form class="md-float-material" action="" method="POST" autocomplete="on">
+                             <div class="text-center">
+                                 <img src="img/logo_123.png" alt="logo" width='150px'>
+                             </div>
+                             <h3 class="text-center txt-success">
+
+                                 <!--Sign In to your account-->
+
+                                 <?php
 					 
 								
 								
@@ -172,7 +173,7 @@
 										$_SESSION['vat_applicable'] = $vat_client;
 										  //$_SESSION['company'] = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 										$_SESSION['address1'] = "Eastern Province";
-										$cookie_name = "DR" . $row['usr_id'];
+										$cookie_name = "ACC" . $row['usr_id'];
 										$user_id = $row['usr_id'];
 									   $encryption = $_COOKIE[$cookie_name];
 										$ciphering = "AES-128-CTR";
@@ -274,27 +275,29 @@
 
 								}
 								?>
-								
-								
-							</h3>
-							
 
-							<div class="row">
-								
-								<div class="col-md-12">
-									<div class="md-input-wrapper">
-										<input type="text" name='username' id="username"  class="md-form-control md-valid" required="required" />
-										<label>User Name</label>
-									</div>
-								</div>
-								<div class="col-md-12">
-									<div class="md-input-wrapper">
-										<input type="password" class="md-form-control md-valid" id="password" name='password' required="required" />
-										<label>Password</label>
-									</div>
-								</div>
-								<div class="col-sm-6 col-xs-12">
-									<!-- <div class="rkmd-checkbox checkbox-rotate checkbox-ripple m-b-25">
+
+                             </h3>
+
+
+                             <div class="row">
+
+                                 <div class="col-md-12">
+                                     <div class="md-input-wrapper">
+                                         <input type="text" name='username' id="username"
+                                             class="md-form-control md-valid" required="required" />
+                                         <label>User Name</label>
+                                     </div>
+                                 </div>
+                                 <div class="col-md-12">
+                                     <div class="md-input-wrapper">
+                                         <input type="password" class="md-form-control md-valid" id="password"
+                                             name='password' required="required" />
+                                         <label>Password</label>
+                                     </div>
+                                 </div>
+                                 <div class="col-sm-6 col-xs-12">
+                                     <!-- <div class="rkmd-checkbox checkbox-rotate checkbox-ripple m-b-25">
 										<label class="input-checkbox checkbox-primary">
 											<input type="checkbox" id="checkbox">
 											<span class="checkbox"></span>
@@ -302,57 +305,60 @@
 										<div class="captions">Remember Me</div>
 
 									</div> -->
-								</div>
-								
-							</div>
-							<div class="row">
-								<div class="col-xs-10 offset-xs-1">
-									<!--<button type="submit" class="btn btn-success btn-md btn-block waves-effect text-center m-b-20" name='LoginSubmit'>LOGIN</button>-->
-									<button type="submit"
-        class="btn btn-success btn-md btn-block waves-effect text-center m-b-20"
-        name="LoginSubmit"
-        onclick="setTimeout(() => { this.disabled = true; this.innerText = 'Processing...'; }, 1)">
-        LOGIN
-    </button>
-								</div>
-								
-								
-							</div>	</form>
-					  <div class="card-footer"> 
-					    <div class="text-center mt-3">
-    <a href="reset_request.php" class="btn btn-outline-primary btn-sm">Forgot Password?</a>
-    <a href="setup_password.php" class="btn btn-outline-primary btn-sm">New User?</a>
-</div>
-					  <div class="col-sm-6 col-xs-12 forgot-phone text-right">
-								
-									
-								</div>
-						    <div class="col-sm-12 col-xs-12 text-center">
-						        
-						        
-								<div align='center'>
-								  <a href="https://dtecstudio.com/"  target='_blank' class="text-right f-w-600"> Solution by : <img src='https://dtecstudio.com/img/logo.png' width='80px;'> </a>
-								 <!-- <br> <a href='https://chromewebstore.google.com/detail/google-input-tools/mclkkofklkfljcocdinagocijmpgbhab' target='_blank'><img src='https://lh3.googleusercontent.com/KxYKwMcAzhn_DBMVIb0mtvIOsAME2d8-csv5d_vnKYX6PL3D6BGbVy3hH68ky8nM9yTDGAPl6B77pA7tpu4_jeUkXw=s60' width='30px'>Google Input Tools</a> -->
-								</div>
-							<!-- <a href='mobile/'> 	 <button class='btn btn-success' type='button' > Staff Login </button></a> -->
-							</div> 
-                  	</div> 
-							<!-- </div> -->
-					
-						<!-- end of form -->
-					</div>
-					<!-- end of login-card -->
-				</div>
-				<!-- end of col-sm-12 -->
-			</div>
-			<!-- end of row -->
-		</div>
-		<!-- end of container-fluid -->
-	</section>
+                                 </div>
 
-	<!-- Warning Section Starts -->
-	<!-- Older IE warning message -->
-	<!--[if lt IE 9]>
+                             </div>
+                             <div class="row">
+                                 <div class="col-xs-10 offset-xs-1">
+                                     <!--<button type="submit" class="btn btn-success btn-md btn-block waves-effect text-center m-b-20" name='LoginSubmit'>LOGIN</button>-->
+                                     <button type="submit"
+                                         class="btn btn-success btn-md btn-block waves-effect text-center m-b-20"
+                                         name="LoginSubmit"
+                                         onclick="setTimeout(() => { this.disabled = true; this.innerText = 'Processing...'; }, 1)">
+                                         LOGIN
+                                     </button>
+                                 </div>
+
+
+                             </div>
+                         </form>
+                         <div class="card-footer">
+                             <div class="text-center mt-3">
+                                 <a href="reset_request.php" class="btn btn-outline-primary btn-sm">Forgot Password?</a>
+                                 <a href="setup_password.php" class="btn btn-outline-primary btn-sm">New User?</a>
+                             </div>
+                             <div class="col-sm-6 col-xs-12 forgot-phone text-right">
+
+
+                             </div>
+                             <div class="col-sm-12 col-xs-12 text-center">
+
+
+                                 <div align='center'>
+                                     <a href="https://dtecstudio.com/" target='_blank' class="text-right f-w-600">
+                                         Solution by : <img src='https://dtecstudio.com/img/logo.png' width='80px;'>
+                                     </a>
+                                     <!-- <br> <a href='https://chromewebstore.google.com/detail/google-input-tools/mclkkofklkfljcocdinagocijmpgbhab' target='_blank'><img src='https://lh3.googleusercontent.com/KxYKwMcAzhn_DBMVIb0mtvIOsAME2d8-csv5d_vnKYX6PL3D6BGbVy3hH68ky8nM9yTDGAPl6B77pA7tpu4_jeUkXw=s60' width='30px'>Google Input Tools</a> -->
+                                 </div>
+                                 <!-- <a href='mobile/'> 	 <button class='btn btn-success' type='button' > Staff Login </button></a> -->
+                             </div>
+                         </div>
+                         <!-- </div> -->
+
+                         <!-- end of form -->
+                     </div>
+                     <!-- end of login-card -->
+                 </div>
+                 <!-- end of col-sm-12 -->
+             </div>
+             <!-- end of row -->
+         </div>
+         <!-- end of container-fluid -->
+     </section>
+
+     <!-- Warning Section Starts -->
+     <!-- Older IE warning message -->
+     <!--[if lt IE 9]>
 <div class="ie-warning">
 	<h1>Warning!!</h1>
 	<p>You are using an outdated version of Internet Explorer, please upgrade <br/>to any of the following web browsers to access this website.</p>
@@ -393,27 +399,26 @@
 	<p>Sorry for the inconvenience!</p>
 </div>
 <![endif]-->
-	<!-- Warning Section Ends -->
-	<!-- Required Jqurey -->
+     <!-- Warning Section Ends -->
+     <!-- Required Jqurey -->
 
 
-	
-	<script src="assets/plugins/jquery/dist/jquery.min.js"></script>
-	<script src="assets/plugins/jquery-ui/jquery-ui.min.js"></script>
-	<script src="assets/plugins/tether/dist/js/tether.min.js"></script>
 
-	<!-- Required Fremwork -->
-	<script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+     <script src="assets/plugins/jquery/dist/jquery.min.js"></script>
+     <script src="assets/plugins/jquery-ui/jquery-ui.min.js"></script>
+     <script src="assets/plugins/tether/dist/js/tether.min.js"></script>
 
-	<!-- waves effects.js -->
-	<script src="assets/plugins/waves/waves.min.js"></script>
-	<!-- Custom js -->
-	<script type="text/javascript" src="assets/pages/elements.js"></script>
-	<script src="assets/plugins/notification/js/bootstrap-growl.min.js"></script>
-   <script src="assets/pages/notification.js"></script>
+     <!-- Required Fremwork -->
+     <script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+
+     <!-- waves effects.js -->
+     <script src="assets/plugins/waves/waves.min.js"></script>
+     <!-- Custom js -->
+     <script type="text/javascript" src="assets/pages/elements.js"></script>
+     <script src="assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+     <script src="assets/pages/notification.js"></script>
 
 
-</body>
+ </body>
 
-</html>
- 
+ </html>

@@ -27,7 +27,7 @@ session_start();
      }
      
      
- $cookie_name = "DR" . $user_id;
+ $cookie_name = "ACC" . $user_id;
       $username = $user_row['username'];
       if (isset($_COOKIE[$cookie_name])) {
         $encrypted_token = $_COOKIE[$cookie_name];
