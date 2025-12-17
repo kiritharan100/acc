@@ -141,7 +141,7 @@ function saveJournal($data, $con, $user_id) {
   @setcookie('transaction_date', $date, time() + 86400, '/');
 
   UserLog("3", "Journal Entry", "Memo: $memo");
-  return "Journal saved.";
+  return "Journal saved.|" . $journal_id;
 }
 
 $result = saveJournal($_POST, $con, $user_id);

@@ -72,7 +72,7 @@ if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
         <div class="row">
             <div class="col-md-12">
                 <div class="card card-block">
-                    <form class="form-inline mb-3" method="get" action="">
+                    <form id="journalFilterForm" class="form-inline mb-3" method="get" action="">
                         <label>Start Date</label>&nbsp;
                         <div class="input-group datepicker-group" style="width:120px;display:inline-flex;">
                             <input type="text" class="form-control date_input" name="start_date"
@@ -90,17 +90,18 @@ if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
                         <label>Show Deleted Journal</label>&nbsp;
                         <div class="input-group datepicker-group" style="width:120px;display:inline-flex;">
                             <input type="checkbox" class="form-control" name="show_deleted" value="1"
+                                style='width:20px;'
                                 <?= isset($_GET['show_deleted']) && $_GET['show_deleted'] == '1' ? 'checked' : '' ?>>
                         </div>&nbsp;
 
 
-                        <button type="submit" class="btn btn-primary">Filter</button>
                         <button type="button" class="btn btn-success ml-auto" onclick="openJournalModal()">+ Add
                             Journal</button>
                         <button type='button' id="exportButton"
                             filename='<?php echo "Journal_list_".$start_date."_".$end_date; ?>.xlsx'
                             class="btn btn-primary"><i class="ti-cloud-down"></i> Export</button>
-                        <button type="button" class="btn btn-danger" onclick="bulkDeleteJournals()">Delete Journal(s)</button>
+                        <button type="button" class="btn btn-danger" onclick="bulkDeleteJournals()">Delete
+                            Journal(s)</button>
 
                     </form>
                     <hr>
@@ -119,55 +120,7 @@ if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
                                 <th width='80px'>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php 
-              $count = 1;
-              while ($j = mysqli_fetch_assoc($journals)) {
-                $style = $j['status'] == 0 ? "class='table-danger cancelled-row'" : "";
-                $disableCheckbox = ($j['has_filed_vat'] == 1) ? 'disabled title="VAT filed - cannot delete"' : '';
-                echo "<tr $style>
-                  <td><input type='checkbox' class='journal-select' value='{$j['id']}' $disableCheckbox></td>
-                  <td>{$count}</td> 
-                  <td>{$j['journal_date']}</td>
-                  <td align='center'><a class='dropdown-item' href='#' onclick='viewJournal({$j['id']})'>
-                  J{$j['loc_no']} </a></td>
-                  
-                  <td>{$j['memo']}</td> 
-                  <td align='right'>".number_format($j['total_credit'], 2)."</td>
-                  <td align='center'>".($j['status'] ? 'Posted' : 'Cancelled')."</td>
-                  <td>
-                    <div class='dropdown'>
-                      <button class='btn btn-outline-primary btn-sm dropdown-toggle' type='button' id='act{$j['id']}' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
-                        <i class='fa fa-cog'></i> Action
-                      </button>
-                      <div class='dropdown-menu' aria-labelledby='act{$j['id']}'>
-                        <a class='dropdown-item' href='#' onclick='viewJournal({$j['id']})'>
-                          <i class='fa fa-eye text-info'></i> View Journal
-                        </a>
-                        <a class='dropdown-item' href='#' onclick='editJournal({$j['id']})'>
-                          <i class='fa fa-edit text-primary'></i> Edit Journal
-                        </a>";
-                  echo "<a class='dropdown-item' href='#' onclick='copyJournal({$j['id']})'>
-                          <i class='fa fa-copy text-warning'></i> Copy Journal
-                        </a>";
-                  if ($j['status'] == 1) {    
-                        echo "<a class='dropdown-item' href='#' onclick='deleteJournal({$j['id']})'>
-                          <i class='fa fa-trash text-danger'></i> Delete Journal
-                        </a>";
-                    }
-                    if($j['status'] == 0) {
-                        echo "<a class='dropdown-item' href='#' onclick='RestoreJournal({$j['id']})'>
-                          <i class='fa fa-undo text-success'></i> Restore Journal
-                        </a>";
-                    }
-                      echo "</div>
-                    </div>
-                  </td>
-                </tr>";
-                $count++;
-              }
-              ?>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -210,8 +163,8 @@ if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
                                 <th>Category</th>
                                 <th style='width:300px;'>Description</th>
                                 <?php if ($is_vat_registered == 1): ?>
-                                <th style='width:120px;'>VAT</th>
-                                <th style='width:120px;'>VAT Value</th>
+                                <th style='width:90px;'>VAT</th>
+                                <th style='width:160px;'>VAT Value</th>
                                 <?php endif; ?>
                                 <th style='width:150px;'>Debit
                                     <?php if ($is_vat_registered == 1){ echo "(With VAT)"; } ?>
@@ -248,21 +201,150 @@ if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
 </div>
 
 <script>
+// Style for last saved highlight + totals
+const style = document.createElement('style');
+style.innerHTML = `
+.recent-save { background-color: #B6FCB8 !important; transition: background-color 5s ease; }
+.total-row { background-color: #B3C6F2 !important; font-weight: bold; }
+.total-row td { font-weight: bold !important; }
+`;
+document.head.appendChild(style);
+
 let accountOptions = "";
 let contactOptions = "";
+let lastSavedJournalId = null;
+
+function parseAmount(val) {
+    if (val === undefined || val === null) return 0;
+    const num = parseFloat(String(val).replace(/,/g, ''));
+    return isNaN(num) ? 0 : num;
+}
+
+function formatAmountField(input) {
+    const raw = (input.value || '').trim();
+    if (raw === '') {
+        input.value = '';
+        return;
+    }
+    const num = parseAmount(raw);
+    if (isNaN(num)) {
+        input.value = '';
+    } else {
+        input.value = num.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+}
+
+function setAmount($input, value) {
+    const num = parseAmount(value);
+    if (isNaN(num) || num === 0) {
+        $input.val('');
+        return;
+    }
+    $input.val(num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }));
+}
+
+// Temporarily normalize amount fields (debit/credit/VAT value) for submission, then restore UI values
+function normalizeAmountsForSubmit() {
+    const backups = [];
+    $('.amount-input, .vat-value').each(function() {
+        const prev = $(this).val();
+        backups.push({
+            el: this,
+            val: prev
+        });
+        const raw = (prev || '').trim();
+        if (raw === '') {
+            $(this).val('');
+            return;
+        }
+        const num = parseAmount(raw);
+        if (isNaN(num)) {
+            $(this).val('');
+        } else {
+            $(this).val(num.toFixed(2));
+        }
+    });
+    return function restore() {
+        backups.forEach(({
+            el,
+            val
+        }) => $(el).val(val));
+    };
+}
 
 // DataTable ordering: Journal Date desc
 $(function() {
-    $('#example').DataTable({
-        order: [[2, 'desc']],
-        columnDefs: [
-            { orderable: false, targets: [0, 7] }
-        ]
+    const journalTable = $('#example').DataTable({
+        processing: true,
+        serverSide: true,
+        searching: true,
+        lengthMenu: [
+            [25, 50, 100, 500],
+            [25, 50, 100, 500]
+        ],
+        pageLength: 25,
+        order: [
+            [2, 'desc']
+        ],
+        columnDefs: [{
+            orderable: false,
+            targets: [0, 7]
+        }],
+        ajax: {
+            url: 'ajax/list_journals.php',
+            type: 'POST',
+            data: function(d) {
+                d.start_date = $('input[name="start_date"]').val();
+                d.end_date = $('input[name="end_date"]').val();
+                d.show_deleted = $('input[name="show_deleted"]').is(':checked') ? 1 : 0;
+            }
+        },
+        drawCallback: function() {
+            $('#selectAllJournals').prop('checked', false);
+        },
+        createdRow: function(row) {
+            const id = $(row).find('.journal-select').val();
+            if (lastSavedJournalId && String(id) === String(lastSavedJournalId)) {
+                $(row).addClass('recent-save');
+                setTimeout(() => $(row).removeClass('recent-save'), 5000);
+            }
+        }
     });
 
     $('#selectAllJournals').on('change', function() {
         const checked = $(this).is(':checked');
         $('.journal-select:not(:disabled)').prop('checked', checked);
+    });
+
+    function reloadJournalTable() {
+        journalTable.ajax.reload();
+    }
+
+    $('#journalFilterForm').on('submit', function(e) {
+        e.preventDefault();
+        reloadJournalTable();
+    });
+
+    $('#journalFilterForm input[name="start_date"], #journalFilterForm input[name="end_date"]').on(
+        'change blur', reloadJournalTable);
+    $('#journalFilterForm input[name="show_deleted"]').on('change', reloadJournalTable);
+
+    // Format amount fields on blur/change
+    $(document).on('blur', '.amount-input', function() {
+        formatAmountField(this);
+        updateTotals();
+        updateVatValue(this);
+    });
+    $(document).on('change', '.amount-input', function() {
+        formatAmountField(this);
+        updateTotals();
+        updateVatValue(this);
     });
 });
 // function openJournalModal() {
@@ -284,7 +366,9 @@ function openJournalModal() {
 }
 
 function bulkDeleteJournals() {
-    const ids = $('.journal-select:checked').map(function() { return $(this).val(); }).get();
+    const ids = $('.journal-select:checked').map(function() {
+        return $(this).val();
+    }).get();
     if (ids.length === 0) {
         notify('info', 'No journals selected', 'Please select at least one journal to delete.');
         return;
@@ -301,10 +385,12 @@ function bulkDeleteJournals() {
     }).then((result) => {
         if (!result.isConfirmed) return;
 
-        const requests = ids.map(id => $.post('journal/delete_journal.php', { id }));
+        const requests = ids.map(id => $.post('journal/delete_journal.php', {
+            id
+        }));
         $.when.apply($, requests).done(function() {
             notify('success', 'Deleted', 'Selected journals deleted.');
-            setTimeout(() => location.reload(), 800);
+            $('#example').DataTable().ajax.reload();
         }).fail(function() {
             notify('danger', 'Error', 'Failed to delete one or more journals.');
         });
@@ -337,7 +423,7 @@ function addJournalLine(selectedAccountId = '') {
 
     if (window.isVatRegistered) {
         vatDropdown =
-            `<select name="vat_id[]" class="form-control vat-select" style="width:120px;">${window.vatOptions || ''}</select>`;
+            `<select name="vat_id[]" class="form-control vat-select" style="width:90px;">${window.vatOptions || ''}</select>`;
         vatValueCell = `<td><input type="text" class="form-control vat-value text-right" readonly value="0.00"></td>`;
     }
     const row = `<tr>
@@ -349,8 +435,8 @@ function addJournalLine(selectedAccountId = '') {
     </td>
     <td><input type="text" name="description[]" class="form-control"></td>
     ${(window.isVatRegistered ? `<td>${vatDropdown}</td>${vatValueCell}` : '')}
-    <td><input type="number" step="0.01" min="0" name="debit[]" style="width:150px;" class="form-control text-right" oninput="clearOpposite(this, 'credit'); updateTotals(); updateVatValue(this);"></td>
-    <td><input type="number" step="0.01" min="0" name="credit[]" style="width:150px;" class="form-control text-right" oninput="clearOpposite(this, 'debit'); updateTotals(); updateVatValue(this);"></td>
+    <td><input type="text" name="debit[]" style="width:150px;" class="form-control text-right amount-input" oninput="clearOpposite(this, 'credit'); updateTotals(); updateVatValue(this);"></td>
+    <td><input type="text" name="credit[]" style="width:150px;" class="form-control text-right amount-input" oninput="clearOpposite(this, 'debit'); updateTotals(); updateVatValue(this);"></td>
       <td>
         <select name="contact_id[]" class="form-control select2_contact" style="width:200px;">
           ${contactOptions}
@@ -393,10 +479,16 @@ function addJournalLine(selectedAccountId = '') {
 function updateTotals() {
     let totalDebit = 0,
         totalCredit = 0;
-    $('input[name="debit[]"]').each((i, el) => totalDebit += parseFloat(el.value) || 0);
-    $('input[name="credit[]"]').each((i, el) => totalCredit += parseFloat(el.value) || 0);
-    $('#total_debit').val(totalDebit.toFixed(2));
-    $('#total_credit').val(totalCredit.toFixed(2));
+    $('input[name="debit[]"]').each((i, el) => totalDebit += parseAmount(el.value));
+    $('input[name="credit[]"]').each((i, el) => totalCredit += parseAmount(el.value));
+    $('#total_debit').val(totalDebit.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }));
+    $('#total_credit').val(totalCredit.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }));
 }
 
 
@@ -515,12 +607,19 @@ function loadVatRatesFromOptions() {
 
 function updateVatValue(input) {
     const $row = $(input).closest('tr');
-    const debit = parseFloat($row.find('input[name="debit[]"]').val()) || 0;
-    const credit = parseFloat($row.find('input[name="credit[]"]').val()) || 0;
+    const debit = parseAmount($row.find('input[name="debit[]"]').val());
+    const credit = parseAmount($row.find('input[name="credit[]"]').val());
     const vatId = $row.find('.vat-select').val();
     const rate = window.vatRates && vatId ? (parseFloat(window.vatRates[vatId]) || 0) : 0;
-    const vatValue = ((debit + credit) * rate / 100).toFixed(2);
-    $row.find('.vat-value').val(vatValue);
+    const vatValue = (debit + credit) * rate / 100;
+    if (vatValue === 0) {
+        $row.find('.vat-value').val('');
+    } else {
+        $row.find('.vat-value').val(vatValue.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }));
+    }
 }
 
 // Set VAT on a row without triggering the change prompt
@@ -638,7 +737,11 @@ function deleteJournal(id) {
     }, function(resp) {
         if (resp.toLowerCase().includes("cancelled")) {
             notify('success', 'Deleted', resp);
-            setTimeout(() => location.reload(), 800);
+            if ($.fn.DataTable.isDataTable('#example')) {
+                $('#example').DataTable().ajax.reload();
+            } else {
+                setTimeout(() => location.reload(), 800);
+            }
         } else {
             notify('danger', 'Error', resp);
         }
@@ -681,11 +784,20 @@ function viewJournal(id) {
             const lines = res.details || [];
 
             $('#viewRefNo').text(j.loc_no ? `(J${j.loc_no})` : '');
-            $('#viewDate').text(j.journal_date || '');
+            $('#viewDate').text(j.journal_date ?
+                `${j.journal_date}${j.loc_no ? ' | Journal No: J' + j.loc_no : ''}` : '');
             $('#viewMemo').text(j.memo || '');
 
             let tDr = 0,
                 tCr = 0;
+            const fmt = (val) => {
+                const num = parseFloat(val);
+                if (!num || num === 0) return '';
+                return num.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            };
             lines.forEach((line, idx) => {
                 const acc = line.account_name || line.ca_id;
                 const desc = line.description || '';
@@ -699,9 +811,9 @@ function viewJournal(id) {
                     const vatName = line.vat_name ?
                         `${line.vat_name}${line.vat_percentage ? ' ('+line.vat_percentage+'%)' : ''}` :
                         '-';
-                    const vatValue = ((parseFloat(line.debit_vat) || 0) + (parseFloat(line
-                        .credit_vat) || 0)).toFixed(2);
-                    vatCols = `<td>${vatName}</td><td class="text-right">${vatValue}</td>`;
+                    const vatValue = (parseFloat(line.debit_vat) || 0) + (parseFloat(line.credit_vat) ||
+                        0);
+                    vatCols = `<td>${vatName}</td><td class="text-right">${fmt(vatValue)}</td>`;
                 }
 
                 const tr = `
@@ -710,15 +822,15 @@ function viewJournal(id) {
             <td>${acc}</td>
             <td>${desc}</td>
             ${window.isVatRegistered ? vatCols : ''}
-            <td class="text-right">${dr.toFixed(2)}</td>
-            <td class="text-right">${cr.toFixed(2)}</td>
+            <td class="text-right">${fmt(dr)}</td>
+            <td class="text-right">${fmt(cr)}</td>
                         <td>${line.contact_display || ''}</td>
                     </tr>`;
                 $tbody.append(tr);
             });
 
-            $('#viewTotalDebit').text(tDr.toFixed(2));
-            $('#viewTotalCredit').text(tCr.toFixed(2));
+            $('#viewTotalDebit').text(fmt(tDr));
+            $('#viewTotalCredit').text(fmt(tCr));
             $('#viewJournalModal').modal('show');
         } else {
             notify('danger', 'Error', 'Unable to load journal.');
@@ -786,8 +898,8 @@ $('#journalForm').on('submit', function(e) {
     //     return;
     // }
 
-    let totalDr = parseFloat($('#total_debit').val()) || 0;
-    let totalCr = parseFloat($('#total_credit').val()) || 0;
+    let totalDr = parseAmount($('#total_debit').val());
+    let totalCr = parseAmount($('#total_credit').val());
     if (totalDr === 0 && totalCr === 0) {
         notify('danger', 'Missing Amount', 'Please fill the amount before save.');
         return;
@@ -800,8 +912,10 @@ $('#journalForm').on('submit', function(e) {
 
 
     attachProcessingForm();
+    // Normalize amount and VAT fields before send, then restore after building FormData
+    const restoreAmounts = normalizeAmountsForSubmit();
     const formData = new FormData(this);
-
+    restoreAmounts();
 
     $.ajax({
         url: 'journal/save_journal.php',
@@ -811,9 +925,15 @@ $('#journalForm').on('submit', function(e) {
         contentType: false,
         success: function(resp) {
             if (resp.toLowerCase().includes("saved")) {
-                notify('success', 'Saved', resp);
+                const parts = resp.split('|');
+                lastSavedJournalId = parts[1] ? parts[1].trim() : null;
+                notify('success', 'Saved', 'Journal saved');
                 $('#journalModal').modal('hide');
-                setTimeout(() => location.reload(), 800);
+                // Refresh table via AJAX instead of full reload
+                if ($.fn.DataTable.isDataTable('#example')) {
+                    $('#example').DataTable().ajax.reload();
+                }
+                $('.processing_button').prop('disabled', false).html('Save Journal');
             } else {
                 notify('danger', 'Error', resp);
                 $('.processing_button').prop('disabled', false).html('Save Journal');
@@ -838,7 +958,7 @@ $('#journalForm').on('submit', function(e) {
 function clearOpposite(currentInput, targetName) {
     const row = $(currentInput).closest('tr');
     const target = row.find(`input[name="${targetName}[]"]`);
-    if (parseFloat(currentInput.value) > 0) {
+    if (parseAmount(currentInput.value) > 0) {
         target.val('');
     }
 }
@@ -877,8 +997,8 @@ function editJournal(id) {
                 $row.find('select[name="category[]"]').val(String(line.ca_id)).trigger(
                     'change');
                 $row.find('input[name="description[]"]').val(line.description || '');
-                $row.find('input[name="debit[]"]').val(line.debit);
-                $row.find('input[name="credit[]"]').val(line.credit);
+                setAmount($row.find('input[name="debit[]"]'), line.debit);
+                setAmount($row.find('input[name="credit[]"]'), line.credit);
                 totalDr += parseFloat(line.debit) || 0;
                 totalCr += parseFloat(line.credit) || 0;
                 // VAT select and value
@@ -986,8 +1106,8 @@ function copyJournal(id) {
                 $row.find('select[name="category[]"]').val(String(line.ca_id)).trigger(
                     'change');
                 $row.find('input[name="description[]"]').val(line.description || '');
-                $row.find('input[name="debit[]"]').val(line.debit);
-                $row.find('input[name="credit[]"]').val(line.credit);
+                setAmount($row.find('input[name="debit[]"]'), line.debit);
+                setAmount($row.find('input[name="credit[]"]'), line.credit);
                 totalDr += parseFloat(line.debit) || 0;
                 totalCr += parseFloat(line.credit) || 0;
                 // VAT select and value
@@ -1121,8 +1241,8 @@ window.transactionDateFromCookie = "<?= $transaction_date_cookie ?>";
                         </thead>
                         <tbody></tbody>
                         <tfoot>
-                            <tr>
-                                <td colspan="<?php echo ($is_vat_registered == 1) ? '4' : '2'; ?>" class="text-right">
+                            <tr class="total-row">
+                                <td colspan="<?php echo ($is_vat_registered == 1) ? '5' : '3'; ?>" class="text-center">
                                     <b>Total</b>
                                 </td>
                                 <td class="text-right" id="viewTotalDebit">0.00</td>
