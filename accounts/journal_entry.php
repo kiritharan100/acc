@@ -787,6 +787,7 @@ function viewJournal(id) {
             $('#viewDate').text(j.journal_date ?
                 `${j.journal_date}${j.loc_no ? ' | Journal No: J' + j.loc_no : ''}` : '');
             $('#viewMemo').text(j.memo || '');
+            $('#viewJournalPdf').attr('href', `journal/journal_pdf.php?id=${id}`);
 
             let tDr = 0,
                 tCr = 0;
@@ -1219,10 +1220,15 @@ window.transactionDateFromCookie = "<?= $transaction_date_cookie ?>";
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row mb-2">
+                    <div class="row mb-2">
                     <div class="col-md-4"><b>Date:</b> <span id="viewDate"></span></div>
-                    <div class="col-md-8"><b>Memo:</b> <span id="viewMemo"></span></div>
-                </div>
+                    <div class="col-md-5"><b>Memo:</b> <span id="viewMemo"></span></div>
+                    <div class="col-md-3 text-right">
+                        <a id="viewJournalPdf" href="#" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="fa fa-file-pdf-o"></i> PDF
+                        </a>
+                    </div>
+                    </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm" id="viewJournalTable">
                         <thead class="thead-light">
