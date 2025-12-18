@@ -1,6 +1,7 @@
 <?php
 include("../../db.php");
 include("../../auth.php");
+include("../../main_functions.php");
 
 header('Content-Type: application/json');
 
@@ -23,6 +24,9 @@ if (!$journal) {
 $journal['journal_date'] = $journal['journal_date'] ? date('d-m-Y', strtotime($journal['journal_date'])) : '';
 
 $loc = intval($journal['location_id'] ?? 0);
+
+// Provide signed PDF URL for this journal
+$journal['pdf_url'] = generate_signed_url('journal/journal_pdf.php', ['id' => $journal['id']]);
 
 // Fetch details with account name and VAT
 $detSql = "

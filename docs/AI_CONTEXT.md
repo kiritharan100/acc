@@ -39,6 +39,14 @@
 - SMS API credentials are hard-coded in `login.php` and `auth.php` (smslenz.lk); rotate/remove for production.
 - Auth depends on matching device token cookie (`ACC{user_id}`) with `user_device.token`; mismatch redirects to login with `multiple_sign_in`.
 
+### URL Signing (HMAC-SHA256)
+- Defined globally in `main_functions.php` with `URL_SIGN_SECRET` (set this to a strong random string).
+- `generate_signed_url($baseUrl, array $params)` sorts params, builds a query string, computes `hash_hmac('sha256', ...)`, and appends `&sig=...`.
+- `verify_signed_request(array $request)` extracts `sig`, recalculates the HMAC, and compares via `hash_equals`; returns true/false.
+- Example: `$url = generate_signed_url('/accounts/journal/journal_pdf.php', ['id' => 25]);`  
+  On target: `if (!verify_signed_request($_GET)) { http_response_code(400); exit('Invalid signature'); } $id = (int)($_GET['id'] ?? 0);`
+- `accounts/journal/journal_pdf.php` now requires a valid signature; `accounts/journal/get_journal_details.php` returns `pdf_url` pre-signed for the modal link in `journal_entry.php`.
+
 ## Quick Paths
 - Root UI: `index.php`, `header.php`, `footer.php`
 - Accounts UI: `accounts/index.php`, `accounts/header.php`, `accounts/footer.php`

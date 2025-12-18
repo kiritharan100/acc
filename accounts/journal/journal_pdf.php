@@ -1,7 +1,13 @@
 <?php
 include("../../db.php");
 include("../../auth.php");
-include("../functions.php");
+include("../../main_functions.php");
+
+$isSigned = verify_signed_request($_GET);
+if (!$isSigned) {
+    http_response_code(400);
+    exit("Invalid or missing signature.");
+}
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id <= 0) {
@@ -55,44 +61,80 @@ $fmt = function($val) {
 ob_start();
 ?>
 <style>
-body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
-.header { margin-bottom: 10px; }
-.title { font-size: 16px; font-weight: bold; margin-bottom: 6px; }
-.client { font-size: 12px; margin-bottom: 10px; }
-table { width: 100%; border-collapse: collapse; }
-th, td { border: 1px solid #ccc; padding: 6px; }
-th { background: #f0f0f0; }
-.right { text-align: right; }
-.total-row { background: #B3C6F2; font-weight: bold; }
+body {
+    font-family: DejaVu Sans, sans-serif;
+    font-size: 12px;
+}
+
+.header {
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.client {
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #ccc;
+    padding: 6px;
+}
+
+th {
+    background: #f0f0f0;
+}
+
+.right {
+    text-align: right;
+}
+
+.total-row {
+    background: #B3C6F2;
+    font-weight: bold;
+}
 </style>
 <div class="header">
-  <div class="title">Journal Entry</div>
-  <div class="client">
-    <div><strong>Client:</strong> <?= htmlspecialchars($client['client_name'] ?? '') ?></div>
-    <div><strong>Address:</strong> <?= htmlspecialchars(trim(($client['address_line1'] ?? '') . ' ' . ($client['address_line2'] ?? '') . ' ' . ($client['city_town'] ?? '') . ' ' . ($client['district'] ?? ''))) ?></div>
-    <div><strong>Journal No:</strong> <?= htmlspecialchars($journal_no) ?></div>
-    <div><strong>Date:</strong> <?= htmlspecialchars($journal_date) ?></div>
-    <div><strong>Memo:</strong> <?= htmlspecialchars($journal['memo'] ?? '') ?></div>
-  </div>
+    <div class="title">Journal Entry</div>
+    <div class="client">
+        <div><strong>Client:</strong> <?= htmlspecialchars($client['client_name'] ?? '') ?></div>
+        <div><strong>Address:</strong>
+            <?= htmlspecialchars(trim(($client['address_line1'] ?? '') . ' ' . ($client['address_line2'] ?? '') . ' ' . ($client['city_town'] ?? '') . ' ' . ($client['district'] ?? ''))) ?>
+        </div>
+        <div><strong>Journal No:</strong> <?= htmlspecialchars($journal_no) ?></div>
+        <div><strong>Date:</strong> <?= htmlspecialchars($journal_date) ?></div>
+        <div><strong>Memo:</strong> <?= htmlspecialchars($journal['memo'] ?? '') ?></div>
+    </div>
 </div>
 
 <table>
-  <thead>
-    <tr>
-      <th style="width:40px;">#</th>
-      <th>Account</th>
-      <th>Description</th>
-      <?php if ($is_vat_registered == 1): ?>
-        <th style="width:90px;">VAT</th>
-        <th style="width:90px;" class="right">VAT Value</th>
-      <?php endif; ?>
-      <th style="width:90px;" class="right">Debit</th>
-      <th style="width:90px;" class="right">Credit</th>
-      <th style="width:140px;">Contact</th>
-    </tr>
-  </thead>
-  <tbody>
-    <?php
+    <thead>
+        <tr>
+            <th style="width:40px;">#</th>
+            <th>Account</th>
+            <th>Description</th>
+            <?php if ($is_vat_registered == 1): ?>
+            <th style="width:90px;">VAT</th>
+            <th style="width:90px;" class="right">VAT Value</th>
+            <?php endif; ?>
+            <th style="width:90px;" class="right">Debit</th>
+            <th style="width:90px;" class="right">Credit</th>
+            <th style="width:140px;">Contact</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
     $tDr = 0; $tCr = 0;
     foreach ($details as $idx => $line):
         $dr = floatval($line['debit'] ?? 0);
@@ -104,33 +146,33 @@ th { background: #f0f0f0; }
         if (!empty($line['customer_name'])) { $contactName = $line['customer_name']; }
         elseif (!empty($line['supplier_name'])) { $contactName = $line['supplier_name']; }
     ?>
-    <tr>
-      <td><?= $idx + 1 ?></td>
-      <td><?= htmlspecialchars($line['account_name'] ?? '') ?></td>
-      <td><?= htmlspecialchars($line['description'] ?? '') ?></td>
-      <?php if ($is_vat_registered == 1): ?>
-        <td><?= htmlspecialchars($vatName) ?></td>
-        <td class="right"><?= $fmt($vatVal) ?></td>
-      <?php endif; ?>
-      <td class="right"><?= $fmt($dr) ?></td>
-      <td class="right"><?= $fmt($cr) ?></td>
-      <td><?= htmlspecialchars($contactName) ?></td>
-    </tr>
-    <?php endforeach; ?>
-  </tbody>
-  <tfoot>
-    <tr class="total-row">
-      <td colspan="<?= ($is_vat_registered == 1) ? 5 : 3; ?>" class="right">Total</td>
-      <?php if ($is_vat_registered == 1): ?>
-        <td class="right"><?= $fmt($tDr) ?></td>
-        <td class="right"><?= $fmt($tCr) ?></td>
-      <?php else: ?>
-        <td class="right"><?= $fmt($tDr) ?></td>
-        <td class="right"><?= $fmt($tCr) ?></td>
-      <?php endif; ?>
-      <td></td>
-    </tr>
-  </tfoot>
+        <tr>
+            <td><?= $idx + 1 ?></td>
+            <td><?= htmlspecialchars($line['account_name'] ?? '') ?></td>
+            <td><?= htmlspecialchars($line['description'] ?? '') ?></td>
+            <?php if ($is_vat_registered == 1): ?>
+            <td><?= htmlspecialchars($vatName) ?></td>
+            <td class="right"><?= $fmt($vatVal) ?></td>
+            <?php endif; ?>
+            <td class="right"><?= $fmt($dr) ?></td>
+            <td class="right"><?= $fmt($cr) ?></td>
+            <td><?= htmlspecialchars($contactName) ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+    <tfoot>
+        <tr class="total-row">
+            <td colspan="<?= ($is_vat_registered == 1) ? 5 : 3; ?>" class="right">Total</td>
+            <?php if ($is_vat_registered == 1): ?>
+            <td class="right"><?= $fmt($tDr) ?></td>
+            <td class="right"><?= $fmt($tCr) ?></td>
+            <?php else: ?>
+            <td class="right"><?= $fmt($tDr) ?></td>
+            <td class="right"><?= $fmt($tCr) ?></td>
+            <?php endif; ?>
+            <td></td>
+        </tr>
+    </tfoot>
 </table>
 <?php
 $html = ob_get_clean();

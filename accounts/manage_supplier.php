@@ -1,47 +1,4 @@
 <?php include 'header.php'; ?>
-<?php
-if (isset($_POST['add_supplier'])) {
-    $supplier_name = $_POST['supplier_name'];
-     $tin_no = $_POST['tin_no'];
-    $address = $_POST['address'];
-    $contact_number = $_POST['contact_number'];
-    $check_duplicate = mysqli_query($con, "SELECT * FROM accounts_manage_supplier WHERE supplier_name = '$supplier_name' AND location_id = '$location_id'");
-    if (mysqli_num_rows($check_duplicate) > 0) {
-        echo "<script> notify('danger', 'Supplier name already exists'); </script>";
-    } else{
-      $status = 1;
-
-    $insert = "INSERT INTO accounts_manage_supplier (supplier_name, status, location_id,address,contact_number,tin_no) 
-               VALUES ('$supplier_name', '$status', '$location_id','$address','$contact_number','$tin_no')";
-    mysqli_query($con, $insert);
-     $detail = " New supplier  $supplier_name added   ";
-        UserLog('1','New Supplier added',$detail);
-        
-    echo "<script> notify('success', 'New supplier added successfully'); </script>";
-
-    }
-
-
-}
-
-if (isset($_POST['edit_supplier'])) {
-    $sup_id = $_POST['sup_id'];
-    $supplier_name = $_POST['supplier_name'];
-       $tin_no = $_POST['tin_no'];
-    $status = $_POST['status'];
-    $address = $_POST['address'];
-    $contact_number = $_POST['contact_number'];
-
-    $update = "UPDATE accounts_manage_supplier SET supplier_name = '$supplier_name', tin_no ='$tin_no', address = '$address', contact_number = '$contact_number', status = '$status' 
-               WHERE sup_id = '$sup_id' AND location_id = '$location_id'";
-    mysqli_query($con, $update);
-
-    $detail = "   $supplier_name : Detial edited   ";
-        UserLog('1',' Supplier detail edited',$detail);
-    
-    echo "<script> notify('success', 'Supplier updated successfully'); </script>";
-}
-?>
 
 <div class="content-wrapper">
     <div class="container-fluid">
@@ -50,46 +7,25 @@ if (isset($_POST['edit_supplier'])) {
         </div>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex">
                 <button class="btn btn-primary" data-toggle="modal" data-target="#add_supplier_modal">Add New Supplier</button>
+                <button type='button' id="exportButton" filename='<?php echo "Supplier_List".date('Y-m-d'); ?>.xlsx' class="btn btn-primary ml-2"><i class="ti-cloud-down"></i> Export</button>
             </div>
             <div class="card-block">
                 <div class="table-responsive">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered" id="supplierTable">
                         <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Supplier Name</th>
-                                 <th>TIN No</th>
-                                 <th>Address</th>
-                                  <th>Contact Number</th>
+                                <th>TIN No</th>
+                                <th>Address</th>
+                                <th>Contact Number</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                        <?php
-                        $query = "SELECT * FROM accounts_manage_supplier WHERE location_id = $location_id ORDER BY sup_id";
-                        $result = mysqli_query($con, $query);
-                        $count = 1;
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            echo ($row['status'] == 1) ? "<tr>" : "<tr style='background-color:#f9c9ba;'>";
-                            echo "<td>" . $count++ . "</td>";
-                            echo "<td>" . $row['supplier_name'] . "</td>";
-                            echo "<td>" . $row['tin_no'] . "</td>";
-                            echo "<td>" . $row['address'] . "</td>";
-                            echo "<td>" . $row['contact_number'] . "</td>";
-                            echo "<td>" . ($row['status'] == 1 ? 'Active' : 'Inactive') . "</td>";
-                            echo "<td alien='center' ><button class='btn btn-sm btn-info edit-supplier' 
-                                        data-id='" . $row['sup_id'] . "' 
-                                        data-name='" . $row['supplier_name'] . "' 
-                                        data-status='" . $row['status'] . "' 
-                                        data-toggle='modal' 
-                                        data-target='#edit_supplier_modal'>Edit</button></td>";
-                            echo "</tr>";
-                        }
-                        ?>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -104,7 +40,7 @@ if (isset($_POST['edit_supplier'])) {
       <div class="modal-body">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title">Add Supplier</h4><hr>
-        <form method="POST" id='my-form'>
+        <form id="addSupplierForm">
           <table width="100%">
             <tr>
               <td align="right">Supplier Name:</td>
@@ -112,19 +48,18 @@ if (isset($_POST['edit_supplier'])) {
             </tr>
             <tr>
               <td align="right">TIN No:</td>
-              <td><input type="text" name="tin_no" class="form-control" ></td>
+              <td><input type="text" name="tin_no" class="form-control"></td>
             </tr>
             <tr>
               <td align="right">Address:</td>
-              <td><input type="text" name="address" class="form-control" ></td>
+              <td><input type="text" name="address" class="form-control"></td>
             </tr>
             <tr>
               <td align="right">Phone No:</td>
-              <td><input type="text" name="contact_number" class="form-control" ></td>
+              <td><input type="text" name="contact_number" class="form-control"></td>
             </tr>
             <tr><td></td><td>
-              <input type='hidden'   name="add_supplier"     value='11'>
-              <button type="submit" class="btn btn-success mt-2 processing"   >Submit</button></td></tr>
+              <button type="submit" class="btn btn-success mt-2 processing">Submit</button></td></tr>
           </table>
         </form>
       </div>
@@ -139,10 +74,9 @@ if (isset($_POST['edit_supplier'])) {
       <div class="modal-body">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title">Edit Supplier</h4><hr>
-        <form method="POST">
+        <form id="editSupplierForm">
           <input type="hidden" name="sup_id" id="edit_sup_id">
           <table width="100%">
-
             <tr><td align="right">Supplier Name:</td><td><input type="text" name="supplier_name" id="edit_supplier_name" class="form-control" readonly></td></tr>
             <tr><td align="right">TIN No:</td><td><input type="text" name="tin_no" id="edit_tin_no" class="form-control"></td></tr>
             <tr><td align="right">Address:</td><td><input type="text" name="address" id="edit_address" class="form-control"></td></tr>
@@ -155,7 +89,7 @@ if (isset($_POST['edit_supplier'])) {
                 </select>
               </td>
             </tr>
-            <tr><td></td><td><button type="submit" name="edit_supplier" class="btn btn-success mt-2">Update</button></td></tr>
+            <tr><td></td><td><button type="submit" class="btn btn-success mt-2">Update</button></td></tr>
           </table>
         </form>
       </div>
@@ -164,14 +98,148 @@ if (isset($_POST['edit_supplier'])) {
 </div>
 
 <script>
+let supplierCache = {};
+
+function renderSuppliers(data) {
+    const $tbody = $('#supplierTable tbody');
+    $tbody.empty();
+    supplierCache = {};
+
+    const esc = (v) => {
+        return $('<div>').text(v == null ? '' : v).html();
+    };
+
+    if (!data || !data.length) {
+        $tbody.append('<tr><td colspan="7" class="text-center">No suppliers found.</td></tr>');
+        return;
+    }
+
+    data.forEach((row, idx) => {
+        supplierCache[row.sup_id] = row;
+        const statusLabel = row.status == 1 ? 'Active' : 'Inactive';
+        const statusClass = row.status == 1 ? '' : 'table-danger cancelled-row';
+        const actionMenu = `
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Action
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item action-edit" href="#" data-id="${row.sup_id}">Edit</a>
+                <a class="dropdown-item text-danger action-delete" href="#" data-id="${row.sup_id}">Delete</a>
+            </div>
+        </div>`;
+
+        $tbody.append(`
+            <tr class="${statusClass}">
+                <td>${idx + 1}</td>
+                <td>${esc(row.supplier_name)}</td>
+                <td>${esc(row.tin_no)}</td>
+                <td>${esc(row.address)}</td>
+                <td>${esc(row.contact_number)}</td>
+                <td>${esc(statusLabel)}</td>
+                <td>${actionMenu}</td>
+            </tr>
+        `);
+    });
+}
+
+function loadSuppliers() {
+    $.get('contact/supplier_list.php', function(res) {
+        if (res && res.success) {
+            renderSuppliers(res.data);
+        } else {
+            notify('danger', 'Error', res && res.message ? res.message : 'Failed to load suppliers.');
+        }
+    }).fail(function() {
+        notify('danger', 'Error', 'Failed to load suppliers.');
+    });
+}
+
+function openEditModal(id) {
+    const row = supplierCache[id];
+    if (!row) {
+        notify('danger', 'Not found', 'Unable to load supplier details.');
+        return;
+    }
+    $('#edit_sup_id').val(row.sup_id);
+    $('#edit_supplier_name').val(row.supplier_name);
+    $('#edit_tin_no').val(row.tin_no);
+    $('#edit_address').val(row.address);
+    $('#edit_contact_number').val(row.contact_number);
+    $('#edit_status').val(row.status);
+    $('#edit_supplier_modal').modal('show');
+}
+
 $(document).ready(function() {
-    $('.edit-supplier').click(function() {
-        $('#edit_sup_id').val($(this).data('id'));
-        $('#edit_supplier_name').val($(this).data('name'));
-        $('#edit_tin_no').val($(this).data('tin_no'));
-        $('#edit_address').val($(this).data('address'));
-        $('#edit_contact_number').val($(this).data('contact_number'));
-        $('#edit_status').val($(this).data('status'));
+    loadSuppliers();
+
+    // Add supplier
+    $('#addSupplierForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = $(this).serialize() + '&action=add';
+        $.post('contact/supplier_save.php', formData, function(res) {
+            if (res && res.success) {
+                notify('success', 'Success', res.message || 'Supplier added.');
+                $('#add_supplier_modal').modal('hide');
+                $('#addSupplierForm')[0].reset();
+                loadSuppliers();
+            } else {
+                notify('danger', 'Error', res && res.message ? res.message : 'Failed to add supplier.');
+            }
+        }, 'json').fail(function() {
+            notify('danger', 'Error', 'Failed to add supplier.');
+        });
+    });
+
+    // Edit supplier
+    $('#editSupplierForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = $(this).serialize() + '&action=edit';
+        $.post('contact/supplier_save.php', formData, function(res) {
+            if (res && res.success) {
+                notify('success', 'Updated', res.message || 'Supplier updated.');
+                $('#edit_supplier_modal').modal('hide');
+                loadSuppliers();
+            } else {
+                notify('danger', 'Error', res && res.message ? res.message : 'Failed to update supplier.');
+            }
+        }, 'json').fail(function() {
+            notify('danger', 'Error', 'Failed to update supplier.');
+        });
+    });
+
+    // Action handlers
+    $(document).on('click', '.action-edit', function(e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        openEditModal(id);
+    });
+
+    $(document).on('click', '.action-delete', function(e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        const name = supplierCache[id] ? supplierCache[id].supplier_name : '';
+        Swal.fire({
+            title: 'Delete supplier?',
+            html: `This will mark <b>${name || 'this supplier'}</b> as inactive.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            $.post('contact/supplier_delete.php', { sup_id: id }, function(res) {
+                if (res && res.success) {
+                    notify('success', 'Deleted', res.message || 'Supplier deleted.');
+                    loadSuppliers();
+                } else {
+                    notify('danger', 'Error', res && res.message ? res.message : 'Failed to delete supplier.');
+                }
+            }, 'json').fail(function() {
+                notify('danger', 'Error', 'Failed to delete supplier.');
+            });
+        });
     });
 });
 </script>

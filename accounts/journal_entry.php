@@ -787,7 +787,11 @@ function viewJournal(id) {
             $('#viewDate').text(j.journal_date ?
                 `${j.journal_date}${j.loc_no ? ' | Journal No: J' + j.loc_no : ''}` : '');
             $('#viewMemo').text(j.memo || '');
-            $('#viewJournalPdf').attr('href', `journal/journal_pdf.php?id=${id}`);
+            if (j.pdf_url) {
+                $('#viewJournalPdf').attr('href', j.pdf_url).removeClass('disabled');
+            } else {
+                $('#viewJournalPdf').attr('href', '#').addClass('disabled');
+            }
 
             let tDr = 0,
                 tCr = 0;

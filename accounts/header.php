@@ -585,19 +585,8 @@ function toUser($d){
 
 
 
-                     <li
-                         class="<?php $url='mange_chart_of_accounts.php'; if($url == $current_url){echo "active";}?> treeview">
-                         <a class="waves-effect waves-dark" href="<?php echo $url; ?>"><i class="fa fa-book"
-                                 aria-hidden="true"></i><span> Chart Of Accounts (Old)</span></a>
-                     </li>
 
-                     </li>
 
-                     <li
-                         class="<?php $url='new_chart_of_accounts.php'; if($url == $current_url){echo "active";}?> treeview">
-                         <a class="waves-effect waves-dark" href="<?php echo $url; ?>"><i class="fa fa-list-alt"
-                                 aria-hidden="true"></i><span> New Chart Of Accounts</span></a>
-                     </li>
 
                      </li>
 
