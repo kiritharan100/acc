@@ -11,8 +11,10 @@
 
         <div class="card">
             <div class="card-header d-flex">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#add_customer_modal">Add New Customer</button>
-                <button type='button' id="exportButton" filename='<?php echo "Customer_List".date('Y-m-d'); ?>.xlsx' class="btn btn-primary ml-2"><i class="ti-cloud-down"></i> Export</button>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#add_customer_modal">Add New
+                    Customer</button>
+                <button type='button' id="exportButton" filename='<?php echo "Customer_List".date('Y-m-d'); ?>.xlsx'
+                    class="btn btn-primary ml-2"><i class="ti-cloud-down"></i> Export</button>
             </div>
             <div class="card-block">
                 <div class="table-responsive">
@@ -39,78 +41,131 @@
 
 <!-- Add Customer Modal -->
 <div class="modal" id="add_customer_modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Add Customer</h4><hr>
-        <form id="addCustomerForm">
-          <table width="100%">
-            <tr>
-              <td align="right">Name:</td>
-              <td><input type="text" name="customer_name" class="form-control" required></td>
-            </tr>
-            <tr>
-              <td align="right">Address:</td>
-              <td><input type="text" name="customer_address" class="form-control"></td>
-            </tr>
-            <tr>
-              <td align="right">Email:</td>
-              <td><input type="email" name="customer_email" class="form-control"></td>
-            </tr>
-            <tr>
-              <td align="right">Contact Number:</td>
-              <td><input type="text" name="condact_number" class="form-control"></td>
-            </tr>
-            <tr>
-              <td align="right">Max Limit:</td>
-              <td><input type="text" name="max_limit" class="form-control"></td>
-            </tr>
-            <tr><td></td><td>
-              <button type="submit" class="btn btn-success mt-2 processing">Submit</button></td></tr>
-          </table>
-        </form>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Add Customer</h4>
+                <hr>
+                <form id="addCustomerForm">
+                    <table width="100%">
+                        <tr>
+                            <td align="right">Name:</td>
+                            <td><input type="text" name="customer_name" class="form-control" required></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Address:</td>
+                            <td><input type="text" name="customer_address" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Email:</td>
+                            <td><input type="email" name="customer_email" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Contact Number:</td>
+                            <td><input type="text" name="condact_number" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Max Limit:</td>
+                            <td><input type="text" name="max_limit" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <button type="submit" class="btn btn-success mt-2 processing">Submit</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- Edit Customer Modal -->
 <div class="modal" id="edit_customer_modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Edit Customer</h4><hr>
-        <form id="editCustomerForm">
-          <input type="hidden" name="c_id" id="edit_c_id">
-          <table width="100%">
-            <tr><td align="right">Name:</td><td><input type="text" name="customer_name" id="edit_customer_name" class="form-control" readonly></td></tr>
-            <tr><td align="right">Address:</td><td><input type="text" name="customer_address" id="edit_customer_address" class="form-control"></td></tr>
-            <tr><td align="right">Email:</td><td><input type="email" name="customer_email" id="edit_customer_email" class="form-control"></td></tr>
-            <tr><td align="right">Contact Number:</td><td><input type="text" name="condact_number" id="edit_condact_number" class="form-control"></td></tr>
-            <tr><td align="right">Max Limit:</td><td><input type="text" name="max_limit" id="edit_max_limit" class="form-control"></td></tr>
-            <tr><td align="right">Status:</td>
-              <td>
-                <select name="status" id="edit_status" class="form-control">
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
-              </td>
-            </tr>
-            <tr><td></td><td><button type="submit" class="btn btn-success mt-2">Update</button></td></tr>
-          </table>
-        </form>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Edit Customer</h4>
+                <hr>
+                <form id="editCustomerForm">
+                    <input type="hidden" name="c_id" id="edit_c_id">
+                    <table width="100%">
+                        <tr>
+                            <td align="right">Name:</td>
+                            <td><input type="text" name="customer_name" id="edit_customer_name" class="form-control"
+                                    readonly></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Address:</td>
+                            <td><input type="text" name="customer_address" id="edit_customer_address"
+                                    class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Email:</td>
+                            <td><input type="email" name="customer_email" id="edit_customer_email" class="form-control">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">Contact Number:</td>
+                            <td><input type="text" name="condact_number" id="edit_condact_number" class="form-control">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">Max Limit:</td>
+                            <td><input type="text" name="max_limit" id="edit_max_limit" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Status:</td>
+                            <td>
+                                <select name="status" id="edit_status" class="form-control">
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><button type="submit" class="btn btn-success mt-2">Update</button></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
 let customerCache = {};
+let customerTable = null;
+
+function initCustomerTable() {
+    $.fn.dataTable.ext.errMode = 'none';
+    customerTable = $('#customerTable').DataTable({
+        pageLength: 25,
+        lengthMenu: [
+            [25, 50, 100, 500],
+            [25, 50, 100, 500]
+        ],
+        order: [
+            [1, 'asc']
+        ],
+        columnDefs: [{
+            orderable: false,
+            targets: [7]
+        }]
+    });
+}
 
 function renderCustomers(data) {
     const $tbody = $('#customerTable tbody');
+    if ($.fn.DataTable.isDataTable('#customerTable')) {
+        $('#customerTable').DataTable().destroy();
+    }
     $tbody.empty();
     customerCache = {};
 
@@ -118,11 +173,15 @@ function renderCustomers(data) {
     const fmt = (val) => {
         const num = parseFloat(val);
         if (!isFinite(num) || num === 0) return '';
-        return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return num.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     };
 
     if (!data || !data.length) {
         $tbody.append('<tr><td colspan="8" class="text-center">No customers found.</td></tr>');
+        initCustomerTable();
         return;
     }
 
@@ -130,6 +189,8 @@ function renderCustomers(data) {
         customerCache[row.c_id] = row;
         const statusLabel = row.status == 1 ? 'Active' : 'Inactive';
         const statusClass = row.status == 1 ? '' : 'table-danger cancelled-row';
+        const toggleLabel = row.status == 1 ? 'Inactivate' : 'Activate';
+        const toggleClass = row.status == 1 ? 'text-danger' : 'text-success';
         const actionMenu = `
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -137,7 +198,7 @@ function renderCustomers(data) {
             </button>
             <div class="dropdown-menu dropdown-menu-right">
                 <a class="dropdown-item action-edit" href="#" data-id="${row.c_id}">Edit</a>
-                <a class="dropdown-item text-danger action-delete" href="#" data-id="${row.c_id}">Delete</a>
+                <a class="dropdown-item ${toggleClass} action-toggle" href="#" data-id="${row.c_id}" data-status="${row.status}">${toggleLabel}</a>
             </div>
         </div>`;
 
@@ -154,6 +215,8 @@ function renderCustomers(data) {
             </tr>
         `);
     });
+
+    initCustomerTable();
 }
 
 function loadCustomers() {
@@ -198,7 +261,8 @@ $(document).ready(function() {
                 $('#addCustomerForm')[0].reset();
                 loadCustomers();
             } else {
-                notify('danger', 'Error', res && res.message ? res.message : 'Failed to add customer.');
+                notify('danger', 'Error', res && res.message ? res.message :
+                    'Failed to add customer.');
             }
         }, 'json').fail(function() {
             notify('danger', 'Error', 'Failed to add customer.');
@@ -215,7 +279,8 @@ $(document).ready(function() {
                 $('#edit_customer_modal').modal('hide');
                 loadCustomers();
             } else {
-                notify('danger', 'Error', res && res.message ? res.message : 'Failed to update customer.');
+                notify('danger', 'Error', res && res.message ? res.message :
+                    'Failed to update customer.');
             }
         }, 'json').fail(function() {
             notify('danger', 'Error', 'Failed to update customer.');
@@ -229,29 +294,39 @@ $(document).ready(function() {
         openEditModal(id);
     });
 
-    $(document).on('click', '.action-delete', function(e) {
+    $(document).on('click', '.action-toggle', function(e) {
         e.preventDefault();
         const id = $(this).data('id');
         const name = customerCache[id] ? customerCache[id].customer_name : '';
+        const currentStatus = parseInt($(this).data('status'), 10);
+        const newStatus = currentStatus === 1 ? 0 : 1;
+        const actionTitle = newStatus === 1 ? 'Activate customer?' : 'Inactivate customer?';
+        const actionHtml = newStatus === 1 ?
+            `This will mark <b>${name || 'this customer'}</b> as active.` :
+            `This will mark <b>${name || 'this customer'}</b> as inactive.`;
         Swal.fire({
-            title: 'Delete customer?',
-            html: `This will mark <b>${name || 'this customer'}</b> as inactive.`,
+            title: actionTitle,
+            html: actionHtml,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete',
+            confirmButtonColor: newStatus === 1 ? '#28a745' : '#d33',
+            confirmButtonText: 'Yes',
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (!result.isConfirmed) return;
-            $.post('contact/customer_delete.php', { c_id: id }, function(res) {
+            $.post('contact/customer_delete.php', {
+                c_id: id,
+                status: newStatus
+            }, function(res) {
                 if (res && res.success) {
-                    notify('success', 'Deleted', res.message || 'Customer deleted.');
+                    notify('success', 'Updated', res.message || 'Customer status updated.');
                     loadCustomers();
                 } else {
-                    notify('danger', 'Error', res && res.message ? res.message : 'Failed to delete customer.');
+                    notify('danger', 'Error', res && res.message ? res.message :
+                        'Status change failed.');
                 }
             }, 'json').fail(function() {
-                notify('danger', 'Error', 'Failed to delete customer.');
+                notify('danger', 'Error', 'Status change failed.');
             });
         });
     });

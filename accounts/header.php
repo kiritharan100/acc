@@ -407,11 +407,51 @@ function toUser($d){
                              class="waves-effect waves-dark" href="<?php echo $url; ?>"><i
                                  class="fa-solid fa-gauge"></i><span> Dashboard</span></a></li>
                      </li>
+
+                     <li class="<?php
+                        if(in_array($current_url , array( 
+                        'sales_product_services.php',
+                            '' ))) {
+                        echo "active ";
+                        } ?>treeview"><a class="waves-effect waves-dark" href="#!"> <i class="fas fa-users"></i><span>
+                                 Sales
+                             </span><i class="icon-arrow-down"></i></a>
+                         <ul class="treeview-menu">
+                             <li
+                                 class="<?php $url='sales_product_services.php'; if($url == $current_url){echo "active";}?>">
+                                 <a class="waves-effect waves-dark" href="<?php echo $url; ?>"><i
+                                         class="icon-arrow-right"></i>Product & Services</a>
+                             </li>
+
+                         </ul>
+                     </li>
+
+
+
                      <li class="<?php $url='journal_entry.php'; if($url == $current_url){echo "active";}?> treeview">
                          <a class="waves-effect waves-dark" href="<?php echo $url; ?>"> <i
                                  class="fa-solid fa-table-list"></i><span>
                                  Journal</span></a>
                      </li>
+
+                     <li class="<?php
+            if(in_array($current_url , array( 
+               'manage_customer.php',
+                'manage_supplier.php'
+                ))) {
+               echo "active ";
+              } ?>treeview"><a class="waves-effect waves-dark" href="#!"> <i class="fas fa-users"></i><span> Contacts
+                             </span><i class="icon-arrow-down"></i></a>
+                         <ul class="treeview-menu">
+                             <li class="<?php $url='manage_customer.php'; if($url == $current_url){echo "active";}?>"><a
+                                     class="waves-effect waves-dark" href="<?php echo $url; ?>"><i
+                                         class="icon-arrow-right"></i>Manage Customer</a></li>
+                             <li class="<?php $url='manage_supplier.php'; if($url == $current_url){echo "active";}?>"><a
+                                     class="waves-effect waves-dark" href="<?php echo $url; ?>"><i
+                                         class="icon-arrow-right"></i>Manage Supplier</a></li>
+                         </ul>
+                     </li>
+
 
 
 
@@ -440,23 +480,6 @@ function toUser($d){
 
 
 
-                     <li class="<?php
-            if(in_array($current_url , array( 
-               'manage_customer.php',
-                'manage_supplier.php',
-                'Bob'))) {
-               echo "active ";
-              } ?>treeview"><a class="waves-effect waves-dark" href="#!"> <i class="fas fa-users"></i><span> Contacts
-                             </span><i class="icon-arrow-down"></i></a>
-                         <ul class="treeview-menu">
-                             <li class="<?php $url='manage_customer.php'; if($url == $current_url){echo "active";}?>"><a
-                                     class="waves-effect waves-dark" href="<?php echo $url; ?>"><i
-                                         class="icon-arrow-right"></i>Manage Customer</a></li>
-                             <li class="<?php $url='manage_supplier.php'; if($url == $current_url){echo "active";}?>"><a
-                                     class="waves-effect waves-dark" href="<?php echo $url; ?>"><i
-                                         class="icon-arrow-right"></i>Manage Supplier</a></li>
-                         </ul>
-                     </li>
 
 
 

@@ -8,8 +8,10 @@
 
         <div class="card">
             <div class="card-header d-flex">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#add_supplier_modal">Add New Supplier</button>
-                <button type='button' id="exportButton" filename='<?php echo "Supplier_List".date('Y-m-d'); ?>.xlsx' class="btn btn-primary ml-2"><i class="ti-cloud-down"></i> Export</button>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#add_supplier_modal">Add New
+                    Supplier</button>
+                <button type='button' id="exportButton" filename='<?php echo "Supplier_List".date('Y-m-d'); ?>.xlsx'
+                    class="btn btn-primary ml-2"><i class="ti-cloud-down"></i> Export</button>
             </div>
             <div class="card-block">
                 <div class="table-responsive">
@@ -35,73 +37,121 @@
 
 <!-- Add Supplier Modal -->
 <div class="modal" id="add_supplier_modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Add Supplier</h4><hr>
-        <form id="addSupplierForm">
-          <table width="100%">
-            <tr>
-              <td align="right">Supplier Name:</td>
-              <td><input type="text" name="supplier_name" class="form-control" required></td>
-            </tr>
-            <tr>
-              <td align="right">TIN No:</td>
-              <td><input type="text" name="tin_no" class="form-control"></td>
-            </tr>
-            <tr>
-              <td align="right">Address:</td>
-              <td><input type="text" name="address" class="form-control"></td>
-            </tr>
-            <tr>
-              <td align="right">Phone No:</td>
-              <td><input type="text" name="contact_number" class="form-control"></td>
-            </tr>
-            <tr><td></td><td>
-              <button type="submit" class="btn btn-success mt-2 processing">Submit</button></td></tr>
-          </table>
-        </form>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Add Supplier</h4>
+                <hr>
+                <form id="addSupplierForm">
+                    <table width="100%">
+                        <tr>
+                            <td align="right">Supplier Name:</td>
+                            <td><input type="text" name="supplier_name" class="form-control" required></td>
+                        </tr>
+                        <tr>
+                            <td align="right">TIN No:</td>
+                            <td><input type="text" name="tin_no" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Address:</td>
+                            <td><input type="text" name="address" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Phone No:</td>
+                            <td><input type="text" name="contact_number" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <button type="submit" class="btn btn-success mt-2 processing">Submit</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- Edit Supplier Modal -->
 <div class="modal" id="edit_supplier_modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Edit Supplier</h4><hr>
-        <form id="editSupplierForm">
-          <input type="hidden" name="sup_id" id="edit_sup_id">
-          <table width="100%">
-            <tr><td align="right">Supplier Name:</td><td><input type="text" name="supplier_name" id="edit_supplier_name" class="form-control" readonly></td></tr>
-            <tr><td align="right">TIN No:</td><td><input type="text" name="tin_no" id="edit_tin_no" class="form-control"></td></tr>
-            <tr><td align="right">Address:</td><td><input type="text" name="address" id="edit_address" class="form-control"></td></tr>
-            <tr><td align="right">Phone No:</td><td><input type="text" name="contact_number" id="edit_contact_number" class="form-control"></td></tr>
-            <tr><td align="right">Status:</td>
-              <td>
-                <select name="status" id="edit_status" class="form-control">
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
-              </td>
-            </tr>
-            <tr><td></td><td><button type="submit" class="btn btn-success mt-2">Update</button></td></tr>
-          </table>
-        </form>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Edit Supplier</h4>
+                <hr>
+                <form id="editSupplierForm">
+                    <input type="hidden" name="sup_id" id="edit_sup_id">
+                    <table width="100%">
+                        <tr>
+                            <td align="right">Supplier Name:</td>
+                            <td><input type="text" name="supplier_name" id="edit_supplier_name" class="form-control"
+                                    readonly></td>
+                        </tr>
+                        <tr>
+                            <td align="right">TIN No:</td>
+                            <td><input type="text" name="tin_no" id="edit_tin_no" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Address:</td>
+                            <td><input type="text" name="address" id="edit_address" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td align="right">Phone No:</td>
+                            <td><input type="text" name="contact_number" id="edit_contact_number" class="form-control">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="right">Status:</td>
+                            <td>
+                                <select name="status" id="edit_status" class="form-control">
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><button type="submit" class="btn btn-success mt-2">Update</button></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
 let supplierCache = {};
+let supplierTable = null;
+
+function initSupplierTable() {
+    $.fn.dataTable.ext.errMode = 'none';
+    supplierTable = $('#supplierTable').DataTable({
+        pageLength: 25,
+        lengthMenu: [
+            [25, 50, 100, 500],
+            [25, 50, 100, 500]
+        ],
+        order: [
+            [1, 'asc']
+        ],
+        columnDefs: [{
+            orderable: false,
+            targets: [6]
+        }]
+    });
+}
 
 function renderSuppliers(data) {
     const $tbody = $('#supplierTable tbody');
+    if ($.fn.DataTable.isDataTable('#supplierTable')) {
+        $('#supplierTable').DataTable().destroy();
+    }
     $tbody.empty();
     supplierCache = {};
 
@@ -111,6 +161,7 @@ function renderSuppliers(data) {
 
     if (!data || !data.length) {
         $tbody.append('<tr><td colspan="7" class="text-center">No suppliers found.</td></tr>');
+        initSupplierTable();
         return;
     }
 
@@ -118,6 +169,8 @@ function renderSuppliers(data) {
         supplierCache[row.sup_id] = row;
         const statusLabel = row.status == 1 ? 'Active' : 'Inactive';
         const statusClass = row.status == 1 ? '' : 'table-danger cancelled-row';
+        const toggleLabel = row.status == 1 ? 'Inactivate' : 'Activate';
+        const toggleClass = row.status == 1 ? 'text-danger' : 'text-success';
         const actionMenu = `
         <div class="btn-group">
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -125,7 +178,7 @@ function renderSuppliers(data) {
             </button>
             <div class="dropdown-menu dropdown-menu-right">
                 <a class="dropdown-item action-edit" href="#" data-id="${row.sup_id}">Edit</a>
-                <a class="dropdown-item text-danger action-delete" href="#" data-id="${row.sup_id}">Delete</a>
+                <a class="dropdown-item ${toggleClass} action-toggle" href="#" data-id="${row.sup_id}" data-status="${row.status}">${toggleLabel}</a>
             </div>
         </div>`;
 
@@ -141,6 +194,8 @@ function renderSuppliers(data) {
             </tr>
         `);
     });
+
+    initSupplierTable();
 }
 
 function loadSuppliers() {
@@ -184,7 +239,8 @@ $(document).ready(function() {
                 $('#addSupplierForm')[0].reset();
                 loadSuppliers();
             } else {
-                notify('danger', 'Error', res && res.message ? res.message : 'Failed to add supplier.');
+                notify('danger', 'Error', res && res.message ? res.message :
+                    'Failed to add supplier.');
             }
         }, 'json').fail(function() {
             notify('danger', 'Error', 'Failed to add supplier.');
@@ -201,7 +257,8 @@ $(document).ready(function() {
                 $('#edit_supplier_modal').modal('hide');
                 loadSuppliers();
             } else {
-                notify('danger', 'Error', res && res.message ? res.message : 'Failed to update supplier.');
+                notify('danger', 'Error', res && res.message ? res.message :
+                    'Failed to update supplier.');
             }
         }, 'json').fail(function() {
             notify('danger', 'Error', 'Failed to update supplier.');
@@ -215,29 +272,39 @@ $(document).ready(function() {
         openEditModal(id);
     });
 
-    $(document).on('click', '.action-delete', function(e) {
+    $(document).on('click', '.action-toggle', function(e) {
         e.preventDefault();
         const id = $(this).data('id');
         const name = supplierCache[id] ? supplierCache[id].supplier_name : '';
+        const currentStatus = parseInt($(this).data('status'), 10);
+        const newStatus = currentStatus === 1 ? 0 : 1;
+        const actionTitle = newStatus === 1 ? 'Activate supplier?' : 'Inactivate supplier?';
+        const actionHtml = newStatus === 1 ?
+            `This will mark <b>${name || 'this supplier'}</b> as active.` :
+            `This will mark <b>${name || 'this supplier'}</b> as inactive.`;
         Swal.fire({
-            title: 'Delete supplier?',
-            html: `This will mark <b>${name || 'this supplier'}</b> as inactive.`,
+            title: actionTitle,
+            html: actionHtml,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete',
+            confirmButtonColor: newStatus === 1 ? '#28a745' : '#d33',
+            confirmButtonText: 'Yes',
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (!result.isConfirmed) return;
-            $.post('contact/supplier_delete.php', { sup_id: id }, function(res) {
+            $.post('contact/supplier_delete.php', {
+                sup_id: id,
+                status: newStatus
+            }, function(res) {
                 if (res && res.success) {
-                    notify('success', 'Deleted', res.message || 'Supplier deleted.');
+                    notify('success', 'Updated', res.message || 'Supplier status updated.');
                     loadSuppliers();
                 } else {
-                    notify('danger', 'Error', res && res.message ? res.message : 'Failed to delete supplier.');
+                    notify('danger', 'Error', res && res.message ? res.message :
+                        'Status change failed.');
                 }
             }, 'json').fail(function() {
-                notify('danger', 'Error', 'Failed to delete supplier.');
+                notify('danger', 'Error', 'Status change failed.');
             });
         });
     });

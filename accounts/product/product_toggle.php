@@ -4,27 +4,27 @@ include("../../auth.php");
 
 header('Content-Type: application/json');
 
-$c_id = isset($_POST['c_id']) ? (int)$_POST['c_id'] : 0;
+$p_id = isset($_POST['p_id']) ? (int)$_POST['p_id'] : 0;
 $new_status = isset($_POST['status']) ? (int)$_POST['status'] : 0;
 if ($new_status !== 0 && $new_status !== 1) {
     $new_status = 0;
 }
-if ($c_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid customer.']);
+if ($p_id <= 0) {
+    echo json_encode(['success' => false, 'message' => 'Invalid product/service.']);
     exit;
 }
 
-$sql = "UPDATE accounts_manage_customer SET status = ? WHERE c_id = ? AND location_id = ?";
+$sql = "UPDATE accounts_product SET status = ? WHERE p_id = ? AND location_id = ?";
 $stmt = $con->prepare($sql);
-$stmt->bind_param("iii", $new_status, $c_id, $location_id);
+$stmt->bind_param("iii", $new_status, $p_id, $location_id);
 $ok = $stmt->execute();
 
 if ($ok) {
     if (function_exists('UserLog')) {
         $actionText = ($new_status === 1) ? 'activated' : 'inactivated';
-        UserLog('1', 'Customer status changed', "Customer ID $c_id $actionText");
+        UserLog('1', 'Product/service status changed', "Product ID $p_id $actionText");
     }
-    $msg = ($new_status === 1) ? 'Customer activated.' : 'Customer inactivated.';
+    $msg = ($new_status === 1) ? 'Product/Service activated.' : 'Product/Service inactivated.';
     echo json_encode(['success' => true, 'message' => $msg]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Status change failed.']);
