@@ -76,7 +76,7 @@ require_once('functions.php');
  <!DOCTYPE html>
  <html lang="en">
 
- <title><?php echo $_SESSION['app_name'].">".$_SESSION['company_name']; ?></title>
+ <title><?php echo $_SESSION['app_name'].">".$client_name; ?></title>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -801,5 +801,9 @@ function toUser($d){
          .table td,
          .table th {
              padding: 2px;
+         }
+
+         .main-header {
+             padding: 5px;
          }
          </style>

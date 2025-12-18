@@ -8,7 +8,8 @@ header('Content-Type: application/json');
 $draw   = intval($_POST['draw'] ?? 1);
 $start  = intval($_POST['start'] ?? 0);
 $length = intval($_POST['length'] ?? 25);
-$search = mysqli_real_escape_string($con, $_POST['search']['value'] ?? '');
+$searchRaw = trim($_POST['search']['value'] ?? '');
+$search = mysqli_real_escape_string($con, $searchRaw);
 $orderColIndex = intval($_POST['order'][0]['column'] ?? 2);
 $orderDir = strtolower($_POST['order'][0]['dir'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
 
@@ -35,8 +36,36 @@ $orderableColumns = [
 $orderBy = $orderableColumns[$orderColIndex] ?? 'j.journal_date';
 
 $where = "WHERE j.journal_date BETWEEN '$start_datetime' AND '$end_datetime' AND j.location_id = '$location_id' $status_filter";
-if ($search !== '') {
-    $where .= " AND (j.memo LIKE '%$search%' OR j.loc_no LIKE '%$search%' OR j.journal_date LIKE '%$search%')";
+if ($searchRaw !== '') {
+    $searchConditions = [];
+    $searchConditions[] = "j.memo LIKE '%$search%'";
+    $searchConditions[] = "j.loc_no LIKE '%$search%'";
+    $searchConditions[] = "j.journal_date LIKE '%$search%'";
+
+    // Allow searching by reference like "J25"
+    if (preg_match('/^j\\s*(\\d+)$/i', $searchRaw, $m)) {
+        $refNum = mysqli_real_escape_string($con, $m[1]);
+        $searchConditions[] = "j.loc_no = '$refNum'";
+    }
+
+    // Allow search by date in DD-MM-YYYY or DD/MM/YYYY
+    $dt = DateTime::createFromFormat('d-m-Y', $searchRaw);
+    if (!$dt) {
+        $dt = DateTime::createFromFormat('d/m/Y', $searchRaw);
+    }
+    if ($dt instanceof DateTime) {
+        $searchDate = mysqli_real_escape_string($con, $dt->format('Y-m-d'));
+        $searchConditions[] = "DATE(j.journal_date) = '$searchDate'";
+    }
+
+    // Allow amount search with or without thousand separators
+    $searchNum = preg_replace('/[,\\s]/', '', $searchRaw);
+    if (preg_match('/^\\d+(\\.\\d+)?$/', $searchNum)) {
+        $searchNumEsc = mysqli_real_escape_string($con, $searchNum);
+        $searchConditions[] = "CAST(j.total_credit AS CHAR) LIKE '%$searchNumEsc%'";
+    }
+
+    $where .= " AND (" . implode(" OR ", $searchConditions) . ")";
 }
 
 // Total count

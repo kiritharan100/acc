@@ -21,8 +21,34 @@ $show_deleted = isset($_GET['show_deleted']) && $_GET['show_deleted'] == '1';
       $status_filter = "AND status = 1";
     }  
 
-$start_date = _normalizeDateToSqlLocal($start_date_input) ?: date('Y-m-d', strtotime('-30 days'));
-$end_date   = _normalizeDateToSqlLocal($end_date_input)   ?: date('Y-m-d');
+$periods = get_accounting_periods($con, $location_id);
+$latest_period = $periods[0] ?? null;
+$period_cookie = get_period_cookie_selection($location_id);
+
+$start_date = _normalizeDateToSqlLocal($start_date_input);
+$end_date   = _normalizeDateToSqlLocal($end_date_input);
+
+if (!$start_date && !$end_date && $period_cookie) {
+    $cookie_start = _normalizeDateToSqlLocal($period_cookie['start'] ?? '');
+    $cookie_end = _normalizeDateToSqlLocal($period_cookie['end'] ?? '');
+    if ($cookie_start) {
+        $start_date = $cookie_start;
+    }
+    if ($cookie_end) {
+        $end_date = $cookie_end;
+    }
+}
+
+if (!$start_date && !$end_date && $latest_period) {
+    $start_date = date('Y-m-d', strtotime($latest_period['perid_from']));
+    $end_date = date('Y-m-d', strtotime($latest_period['period_to']));
+}
+if (!$start_date) {
+    $start_date = date('Y-m-d', strtotime('-30 days'));
+}
+if (!$end_date) {
+    $end_date = date('Y-m-d');
+}
 
 $start_datetime = $start_date . ' 00:00:00';
 $end_datetime   = $end_date . ' 23:59:59';
@@ -61,6 +87,39 @@ if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
     }
 }
 
+$period_select_value = 'custom';
+$cookie_selection = null;
+$valid_cookie_selection = false;
+if ($period_cookie && empty($start_date_input) && empty($end_date_input)) {
+    $cookie_selection = $period_cookie['selection'] ?? null;
+}
+if ($cookie_selection === 'custom' || $cookie_selection === 'current') {
+    $valid_cookie_selection = true;
+}
+if ($cookie_selection && !$valid_cookie_selection) {
+    foreach ($periods as $p) {
+        if ($cookie_selection === 'period_' . $p['id']) {
+            $valid_cookie_selection = true;
+            break;
+        }
+    }
+}
+if ($valid_cookie_selection && $cookie_selection) {
+    $period_select_value = $cookie_selection;
+} else {
+    if ($latest_period && empty($start_date_input) && empty($end_date_input)) {
+        $period_select_value = 'current';
+    }
+    foreach ($periods as $idx => $p) {
+        $p_start = date('Y-m-d', strtotime($p['perid_from']));
+        $p_end = date('Y-m-d', strtotime($p['period_to']));
+        if ($p_start === $start_date && $p_end === $end_date) {
+            $period_select_value = ($idx === 0) ? 'current' : 'period_' . $p['id'];
+            break;
+        }
+    }
+}
+
 ?>
 
 <div class="content-wrapper">
@@ -73,6 +132,46 @@ if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
             <div class="col-md-12">
                 <div class="card card-block">
                     <form id="journalFilterForm" class="form-inline mb-3" method="get" action="">
+                        <label>Period</label>&nbsp;
+                        <div class="input-group datepicker-group" style="width:240px;display:inline-flex;">
+                            <select id="accountingPeriodSelect" class="form-control">
+                                <?php
+                                $custom_start = $latest_period ? date('d-m-Y', strtotime($latest_period['perid_from'])) : '';
+                                $custom_end = $latest_period ? date('d-m-Y', strtotime($latest_period['period_to'])) : '';
+                                ?>
+                                <option value="custom" data-start="<?= htmlspecialchars($custom_start) ?>"
+                                    data-end="<?= htmlspecialchars($custom_end) ?>"
+                                    <?= $period_select_value === 'custom' ? 'selected' : '' ?>>
+                                    Custom
+                                </option>
+                                <?php if ($latest_period): ?>
+                                <?php
+                                $current_label = date('d/m/Y', strtotime($latest_period['perid_from'])) . ' - ' . date('d/m/Y', strtotime($latest_period['period_to']));
+                                ?>
+                                <option value="current" data-start="<?= htmlspecialchars($custom_start) ?>"
+                                    data-end="<?= htmlspecialchars($custom_end) ?>"
+                                    <?= $period_select_value === 'current' ? 'selected' : '' ?>>
+                                    Current <?= htmlspecialchars($current_label) ?>
+                                </option>
+                                <?php endif; ?>
+                                <?php foreach ($periods as $idx => $p): ?>
+                                <?php if ($idx === 0) continue; ?>
+                                <?php
+                                    $label = date('d/m/Y', strtotime($p['perid_from'])) . ' - ' . date('d/m/Y', strtotime($p['period_to']));
+                                    $val = 'period_' . $p['id'];
+                                    $p_start = date('d-m-Y', strtotime($p['perid_from']));
+                                    $p_end = date('d-m-Y', strtotime($p['period_to']));
+                                    ?>
+                                <option value="<?= htmlspecialchars($val) ?>"
+                                    data-start="<?= htmlspecialchars($p_start) ?>"
+                                    data-end="<?= htmlspecialchars($p_end) ?>"
+                                    <?= $period_select_value === $val ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($label) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        &nbsp;&nbsp;
                         <label>Start Date</label>&nbsp;
                         <div class="input-group datepicker-group" style="width:120px;display:inline-flex;">
                             <input type="text" class="form-control date_input" name="start_date"
@@ -88,20 +187,19 @@ if ($vatCheck && mysqli_num_rows($vatCheck) > 0) {
                         </div>&nbsp;
 
                         <label>Show Deleted Journal</label>&nbsp;
-                        <div class="input-group datepicker-group" style="width:120px;display:inline-flex;">
+                        <div class="input-group datepicker-group" style="width:30px;display:inline-flex;">
                             <input type="checkbox" class="form-control" name="show_deleted" value="1"
                                 style='width:20px;'
                                 <?= isset($_GET['show_deleted']) && $_GET['show_deleted'] == '1' ? 'checked' : '' ?>>
                         </div>&nbsp;
 
 
-                        <button type="button" class="btn btn-success ml-auto" onclick="openJournalModal()">+ Add
+                        <button type="button" class="btn btn-primary ml-auto" onclick="openJournalModal()">+ Add
                             Journal</button>
                         <button type='button' id="exportButton"
                             filename='<?php echo "Journal_list_".$start_date."_".$end_date; ?>.xlsx'
                             class="btn btn-primary"><i class="ti-cloud-down"></i> Export</button>
-                        <button type="button" class="btn btn-danger" onclick="bulkDeleteJournals()">Delete
-                            Journal(s)</button>
+                        <button type="button" class="btn btn-primary" onclick="bulkDeleteJournals()">Delete</button>
 
                     </form>
                     <hr>
@@ -214,6 +312,27 @@ let accountOptions = "";
 let contactOptions = "";
 let lastSavedJournalId = null;
 
+function getPeriodCookieKey() {
+    if (!window.currentLocationId) return null;
+    return 'acc_period_' + String(window.currentLocationId);
+}
+
+function setPeriodCookie(selection, start, end) {
+    const key = getPeriodCookieKey();
+    if (!key) return;
+    const maxAge = 60 * 60 * 24 * 180; // 6 months
+    const val = encodeURIComponent(selection || 'custom') + '|' +
+        encodeURIComponent(start || '') + '|' + encodeURIComponent(end || '');
+    document.cookie = `${key}=${val}; path=/; max-age=${maxAge}`;
+}
+
+function saveCurrentPeriodCookie() {
+    const selection = $('#accountingPeriodSelect').val() || 'custom';
+    const start = $('input[name="start_date"]').val() || '';
+    const end = $('input[name="end_date"]').val() || '';
+    setPeriodCookie(selection, start, end);
+}
+
 function parseAmount(val) {
     if (val === undefined || val === null) return 0;
     const num = parseFloat(String(val).replace(/,/g, ''));
@@ -280,6 +399,7 @@ function normalizeAmountsForSubmit() {
 
 // DataTable ordering: Journal Date desc
 $(function() {
+    let periodApplying = false;
     const journalTable = $('#example').DataTable({
         processing: true,
         serverSide: true,
@@ -331,8 +451,31 @@ $(function() {
         reloadJournalTable();
     });
 
+    $('#accountingPeriodSelect').on('change', function() {
+        const $opt = $(this).find('option:selected');
+        const start = $opt.data('start');
+        const end = $opt.data('end');
+        if (start) $('input[name="start_date"]').val(start);
+        if (end) $('input[name="end_date"]').val(end);
+        periodApplying = true;
+        $('#journalFilterForm input[name="start_date"]').trigger('change');
+        $('#journalFilterForm input[name="end_date"]').trigger('change');
+        periodApplying = false;
+        saveCurrentPeriodCookie();
+    });
+
     $('#journalFilterForm input[name="start_date"], #journalFilterForm input[name="end_date"]').on(
-        'change blur', reloadJournalTable);
+        'change blur',
+        function() {
+            if (!periodApplying) {
+                $('#accountingPeriodSelect').val('custom');
+            }
+            saveCurrentPeriodCookie();
+            reloadJournalTable();
+        }
+    );
+
+    saveCurrentPeriodCookie();
     $('#journalFilterForm input[name="show_deleted"]').on('change', reloadJournalTable);
 
     // Format amount fields on blur/change
@@ -1224,7 +1367,7 @@ window.transactionDateFromCookie = "<?= $transaction_date_cookie ?>";
                 </button>
             </div>
             <div class="modal-body">
-                    <div class="row mb-2">
+                <div class="row mb-2">
                     <div class="col-md-4"><b>Date:</b> <span id="viewDate"></span></div>
                     <div class="col-md-5"><b>Memo:</b> <span id="viewMemo"></span></div>
                     <div class="col-md-3 text-right">
@@ -1232,7 +1375,7 @@ window.transactionDateFromCookie = "<?= $transaction_date_cookie ?>";
                             <i class="fa fa-file-pdf-o"></i> PDF
                         </a>
                     </div>
-                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm" id="viewJournalTable">
                         <thead class="thead-light">
