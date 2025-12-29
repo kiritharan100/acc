@@ -30,7 +30,7 @@ switch ($_POST['action']) {
         $vat_id = isset($_POST['vat_id']) ? (int)$_POST['vat_id'] : 0;
         $status = isset($_POST['status']) ? 1 : 0;
         
-        // Validate code is numeric
+        // Validate code is numeric..
         if (!is_numeric($ca_code)) {
             echo json_encode(['success' => false, 'message' => 'Account code must be numeric']);
             exit;
